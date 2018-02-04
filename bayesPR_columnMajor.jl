@@ -38,7 +38,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, fixedRegSize, varGenotypic, var
         meanMu   = rhs*invLhs
         μ        = rand(Normal(meanMu,sqrt(invLhs*varE)))
         ycorr    .-= μ
-        region   = collect(1:fixedRegSize)                                       #fix region size otherwise remove
+#        region   = collect(1:fixedRegSize)                                       #fix region size otherwise remove
         for r in 1:nRegions
             theseLoci = SNPgroups[r]
             regionSize = length(theseLoci)

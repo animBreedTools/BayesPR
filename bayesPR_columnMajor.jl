@@ -1,7 +1,7 @@
 using Distributions
 
-function bayesPR(genoTrain, phenoTrain, snpInfo, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)
-    SNPgroups = prepRegionData(genoTrain,fixedRegSize)
+function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)
+    SNPgroups = prepRegionData(snpInfo, chrs, genoTrain, fixedRegSize)
     fileControl(fixedRegSize)
     these2Keep = collect((burnIn+1):outputFreq:chainLength) #print these iterations
     nRegions    = length(SNPgroups)
@@ -61,21 +61,36 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, fixedRegSize, varGenotypic, var
 #    @printf("acc %.6f \n", cor(y,X*bayesRegOut')[1])
 end
 
-function prepRegionData(genoTrain,fixedRegSize)
-    totLoci = size(genoTrain,2)
-    TotRegions = ceil(Int,totLoci/fixedRegSize)
-    tempGroups = sort(repmat(collect(1:TotRegions),fixedRegSize))
-    snpInfo = DataFrame(Any, length(tempGroups), 3)
-    snpInfo[1:totLoci,1] = collect(1:totLoci)
-    snpInfo[1:totLoci,2] = names(genoTrain)
-    snpInfo[:,3] = tempGroups
-    completecases!(snpInfo)
-    rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
+function prepRegionData(mapFile,chrs,genoTrain,fixedRegSize)
+    accRegion = 0
+    accRegionVec = [0]
     SNPgroups = []
-    for g in 1:TotRegions
-        push!(SNPgroups,searchsorted(snpInfo[:,3], g))
+    mapData = readtable(pwd()"/$mapFile", header=true)
+    mapData[:chrID] .<= chrs
+    totLoci = size(genoTrain,2)
+    snpInfoFinal = DataFrame(Any, 0, 3)
+    for c in 1:chrs
+        thisChr = mapData[mapData[:chrID] .== c,:]
+        totLociChr = size(thisChr,1)
+        TotRegions = ceil(Int,totLociChr/fixedRegSize)
+        accRegion += TotRegions
+        push!(accRegionVec, accRegion)
+        tempGroups = sort(repmat(collect(accRegionVec[c]+1:accRegionVec[c+1]),fixedRegSize))
+#        tempGroups = sort(repmat(collect(1:TotRegions),fixedRegSize))
+        snpInfo = DataFrame(Any, length(tempGroups), 3)
+        snpInfo[1:totLociChr,1] = collect(1:totLociChr)
+        snpInfo[1:totLociChr,2] = thisChr[:snpID]
+        snpInfo[:,3] = tempGroups
+        completecases!(snpInfo)
+        snpInfoFinal = vcat(snpInfoFinal,snpInfo)
+#        rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
+        @printf("chr %.0f has %.0f groups \n", c, TotRegions)
+        println(counts(snpInfo[:,3]))
     end
-    @printf("returned %.6f groups \n", TotRegions)
+    print(snpInfoFinal)
+    for g in 1:accRegion
+        push!(SNPgroups,searchsorted(snpInfoFinal[:,3], g))
+    end
     return SNPgroups
 end
 

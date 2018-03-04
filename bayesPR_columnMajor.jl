@@ -38,7 +38,6 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
         meanMu   = rhs*invLhs
         μ        = rand(Normal(meanMu,sqrt(invLhs*varE)))
         ycorr    .-= μ
-#        region   = collect(1:fixedRegSize)                                       #fix region size otherwise remove
         for r in 1:nRegions
             theseLoci = SNPgroups[r]
             regionSize = length(theseLoci)
@@ -61,14 +60,15 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
 #    @printf("acc %.6f \n", cor(y,X*bayesRegOut')[1])
 end
 
-function prepRegionData(mapFile,chrs,genoTrain,fixedRegSize)
+function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     accRegion = 0
     accRegionVec = [0]
     SNPgroups = []
-    mapData = readtable(pwd()"/$mapFile", header=false)
+#    mapData = readtable(pwd()"/$mapFile", header=false)
     ###only for our map file
-    head = [:row, :snpID, :snpOrder ,:chrID, :pos]
-    rename!(mapData , names(mapData), head)
+    mapData = readtable("$snpInfo", header=false)
+    headMap = [:row, :snpID, :snpOrder ,:chrID, :pos]
+    rename!(mapData , names(mapData), headMap)
     print(head(mapData))
     ###
     mapData[:chrID] .<= chrs

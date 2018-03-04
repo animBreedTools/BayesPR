@@ -65,7 +65,12 @@ function prepRegionData(mapFile,chrs,genoTrain,fixedRegSize)
     accRegion = 0
     accRegionVec = [0]
     SNPgroups = []
-    mapData = readtable(pwd()"/$mapFile", header=true)
+    mapData = readtable(pwd()"/$mapFile", header=false)
+    ###only for our map file
+    head = [:row, :snpID, :snpOrder ,:chrID, :pos]
+    rename!(mapData , names(mapData), head)
+    print(head(mapData))
+    ###
     mapData[:chrID] .<= chrs
     totLoci = size(genoTrain,2)
     snpInfoFinal = DataFrame(Any, 0, 3)

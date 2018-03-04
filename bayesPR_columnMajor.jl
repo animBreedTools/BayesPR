@@ -66,7 +66,7 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     SNPgroups = []
 #    mapData = readtable(pwd()"/$mapFile", header=false)
     ###only for our map file
-    mapData = readtable("$snpInfo", header=false)
+    mapData = readtable("$snpInfo", header=false, separator=' ')
     headMap = [:row, :snpID, :snpOrder ,:chrID, :pos]
     rename!(mapData , names(mapData), headMap)
     print(head(mapData))

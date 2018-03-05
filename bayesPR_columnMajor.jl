@@ -127,7 +127,7 @@ function fileControl(fixedRegSize)
     for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
         if isfile(f)==true
             rm(f)
-            println(f, " removed")
+            println("$f removed")
         end
     end
 end

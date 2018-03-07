@@ -86,12 +86,12 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
         snpInfo[1:totLociChr,1] = collect(1:totLociChr)
         snpInfo[1:totLociChr,2] = thisChr[:snpID]
         snpInfo[:,3] = tempGroups
-#        completecases!(snpInfo)
         dropmissing!(snpInfo)
         snpInfoFinal = vcat(snpInfoFinal,snpInfo)
 #        rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
         @printf("chr %.0f has %.0f groups \n", c, TotRegions)
-        println(counts(snpInfo[:,3]))
+#        println(counts(snpInfo[:,3]))
+        println(by(snpInfo, :x3, nrow)[:,2])
     end
     print(snpInfoFinal)
     for g in 1:accRegion

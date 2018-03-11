@@ -70,9 +70,8 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     mapData = readtable("$snpInfo", header=false, separator=' ')
     headMap = [:row, :snpID, :snpOrder ,:chrID, :pos]
     rename!(mapData , names(mapData), headMap)
-    println("line73")
-    print(head(mapData))
-    println("line73")
+#    print(head(mapData))
+    println("line74")
     ###
     mapData[:chrID] .<= chrs
     totLoci = size(genoTrain,2)

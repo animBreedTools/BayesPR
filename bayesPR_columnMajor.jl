@@ -71,6 +71,7 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     headMap = [:row, :snpID, :snpOrder ,:chrID, :pos]
     rename!(mapData , names(mapData), headMap)
 #    print(head(mapData))
+    print(mapData[1:10,:])
     println("line74")
     ###
     mapData[:chrID] .<= chrs

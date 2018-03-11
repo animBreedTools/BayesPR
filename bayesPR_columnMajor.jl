@@ -61,7 +61,6 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
 end
 
 function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
-    println("prepRegionData started")
     accRegion = 0
     accRegionVec = [0]
     SNPgroups = []
@@ -72,7 +71,6 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     rename!(mapData , names(mapData), headMap)
 #    print(head(mapData))
     print(mapData[1:10,:])
-    println("line74")
     ###
     mapData[:chrID] .<= chrs
     totLoci = size(genoTrain,2)
@@ -94,20 +92,16 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
 #        rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
         @printf("chr %.0f has %.0f groups \n", c, TotRegions)
 #        println(counts(snpInfo[:,3]))
-            println("line97")
         println(by(snpInfo, :x3, nrow)[:,2])
-            println("line99")
     end
     print(snpInfoFinal)
     for g in 1:accRegion
         push!(SNPgroups,searchsorted(snpInfoFinal[:,3], g))
     end
-    println("prepRegionData ended")
     return SNPgroups
 end
 
 function outputControl(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
-    println("outputControl started")
     if iter in these2Keep
         out0 = open(pwd()*"/muOut$fixedRegSize", "a")
         writecsv(out0, μ)
@@ -128,18 +122,15 @@ function outputControl(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fi
              @printf("iter %s\n", iter)
         end
     end
-    println("outputControl ended")
 end
 
 function fileControl(fixedRegSize)
-    println("fileControl started")
     for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
         if isfile(f)==true
             rm(f)
             println("$f removed")
         end
     end
-    println("fileControl ended")
 end
 
 function sampleBeta(meanBeta, lhs, varE)

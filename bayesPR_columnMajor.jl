@@ -1,3 +1,4 @@
+using DataFrames
 using Distributions
 
 function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)

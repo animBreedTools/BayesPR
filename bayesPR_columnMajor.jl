@@ -53,7 +53,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
             end
             varBeta[r] = sampleVarBeta(νS_β,tempBetaVec[theseLoci],df_β,regionSize)
         end
-        outputControl(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
+        outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
     end
 #    betaFromFile =  readcsv(pwd()"/betaOut",header=false)
 #    print("read $(size(betaFromFile,1)) samples for $(size(betaFromFile,2)) markers from betaOut \n")
@@ -139,7 +139,7 @@ end
 #    end
 #end
 
-function outputControl(onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
+function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
     if iter in these2Keep
         out0 = open(pwd()*"/muOut$fixedRegSize", "a")
         writecsv(out0, μ)

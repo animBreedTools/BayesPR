@@ -61,6 +61,84 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
 #    @printf("acc %.6f \n", cor(y,X*bayesRegOut')[1])
 end
 
+function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)
+    SNPgroups, genoX = prepRegionData(snpInfo, chrs, genoTrain, fixedRegSize)
+    these2Keep = collect((burnIn+1):outputFreq:chainLength) #print these iterations
+    nRegions    = length(SNPgroups)
+    println("number of regions: ", nRegions)
+    dfEffect    = 4.0
+    dfRes       = 4.0
+    X           = convert(Array{Float64}, genoX[:,2:end])  #first colum is ID
+    println("X is this size", size(X))
+    Y           = convert(Array{Float64}, phenoTrain)
+    println("Y is this size", size(Y))
+    nTraits, nRecords , nMarkers   = size(Y,2), size(Y,1), size(X,2)
+    fileControl(nTraits,fixedRegSize)
+    p           = mean(X,1)./2.0
+    sum2pq      = sum(2*(1-p).*p)
+    covBeta     = fill(varGenotypic/sum2pq,nRegions)
+     #priors#
+    dfβ         = dfEffect + nTraits
+    dfR         = dfRes + nTraits
+    Vb          = covBeta[1].*(dfEffect-nTraits-1)
+    VR          = varResidual.*(dfR - nTraits - 1)
+    #initial Beta values as "0"
+    tempBetaMat     = zeros(Float64,nMarkers,nTraits)
+    μ = mean(Y,1)    
+    X              .-= ones(Float64,nRecords)*2p
+    #allocate memory
+    x1x2 = zeros(Float64,length(vec(Y)),nTraits)
+    ycorr1 = zeros(Float64,nTraits,length(Y[:,1]))
+    ycorr2 = zeros(Float64,nTraits,length(Y[:,2]))
+    
+    ycorr1 = (Y[:,1] .- μ[1])
+    ycorr2 = (Y[:,2] .- μ[2])
+        
+    for iter in 1:chainLength
+        #sample residual var
+        Rmat = sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
+        Ri = inv(kron(Rmat,eye(nRecords)))        #sample intercept
+        
+        # sample intercept
+        ycorr1 += μ[1]
+        rhs1 = sum(ycorr1)
+        invLhs1 = 1.0/nRecords
+        mean1 = rhs1*invLhs1
+
+        #    sample intercept
+        ycorr2 += μ[2]
+        rhs2 = sum(ycorr2)
+        invLhs2 = 1.0/nRecords
+        mean2 = rhs2*invLhs2
+    
+        μ[1] = rand(Normal(mean1,sqrt(invLhs1*Rmat[1,1])))
+        μ[2] = rand(Normal(mean2,sqrt(invLhs2*Rmat[2,2])))
+        
+        ycorr1 -= μ[1]
+        ycorr2 -= μ[2]
+        
+        for r in 1:nRegions
+            theseLoci = SNPgroups[r]
+            regionSize = length(theseLoci)
+            invB = inv(covBeta[r])
+            for locus in theseLoci
+                BLAS.axpy!(tempBetaMat[locus,1], X[:,locus], ycorr1)
+                BLAS.axpy!(tempBetaMat[locus,2], X[:,locus], ycorr2)
+                x1x2   = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])
+                rhs    = x1x2'*Ri*[ycorr1;ycorr2]
+                mmeLhs = x1x2'*Ri*x1x2 + invB
+                invLhs = inv(mmeLhs)
+                meanBeta = invLhs*rhs
+                tempBetaMat[locus,:] = rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
+                BLAS.axpy!(-1*tempBetaMat[locus,1], X[:,locus], ycorr1)
+                BLAS.axpy!(-1*tempBetaMat[locus,2], X[:,locus], ycorr2)
+            end
+            covBeta[r] = sampleCovBeta(dfβ,regionSize,Vb,tempBetaMat, theseLoci)
+        end
+        outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
+    end
+end
+
 function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     accRegion = 0
     accRegionVec = [0]

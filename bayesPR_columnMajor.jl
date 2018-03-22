@@ -139,7 +139,7 @@ end
 #    end
 #end
 
-outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
+function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
     if iter in these2Keep
         out0 = open(pwd()*"/muOut$fixedRegSize", "a")
         writecsv(out0, μ)

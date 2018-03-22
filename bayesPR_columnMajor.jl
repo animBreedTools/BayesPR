@@ -159,7 +159,7 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
         writecsv(out3, Rmat)
         close(out3)    
         if onScreen==true
-            varU = var(X*tempBetaMat[:,1])
+            varU = cov(X*tempBetaMat)
             println("iter $iter \nvarU: $varU \nvarE: $Rmat \n")
         elseif onScreen==false
              @printf("iter %s\n", iter)

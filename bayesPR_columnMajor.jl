@@ -53,7 +53,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
             end
             varBeta[r] = sampleVarBeta(νS_β,tempBetaVec[theseLoci],df_β,regionSize)
         end
-        outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
+        outputControlSt(nTraits,onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
     end
 #    betaFromFile =  readcsv(pwd()"/betaOut",header=false)
 #    print("read $(size(betaFromFile,1)) samples for $(size(betaFromFile,2)) markers from betaOut \n")
@@ -107,28 +107,28 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     return SNPgroups, genoX
 end
 
-#function outputControl(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
-#    if iter in these2Keep
-#        out0 = open(pwd()*"/muOut$fixedRegSize", "a")
-#        writecsv(out0, μ)
-#        close(out0) 
-#        out1 = open(pwd()*"/betaOut$fixedRegSize", "a")
-#        writecsv(out1, tempBetaVec')
-#        close(out1)
-#        out2 = open(pwd()*"/varBetaOut$fixedRegSize", "a")
-#        writecsv(out2, varBeta')
-#        close(out2)
-#        out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
-#        writecsv(out3, varE)
-#        close(out3)    
-#        if onScreen==true
-#            varU = var(X*tempBetaVec)
-#            @printf("iter %s varU %.2f varE %.2f\n", iter, varU, varE)
-#        elseif onScreen==false
-#             @printf("iter %s\n", iter)
-#        end
-#    end
-#end
+function outputControlSt(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
+    if iter in these2Keep
+        out0 = open(pwd()*"/muOut$fixedRegSize", "a")
+        writecsv(out0, μ)
+        close(out0) 
+        out1 = open(pwd()*"/betaOut$fixedRegSize", "a")
+        writecsv(out1, tempBetaVec')
+        close(out1)
+        out2 = open(pwd()*"/varBetaOut$fixedRegSize", "a")
+        writecsv(out2, varBeta')
+        close(out2)
+        out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
+        writecsv(out3, varE)
+        close(out3)    
+        if onScreen==true
+            varU = var(X*tempBetaVec)
+            @printf("iter %s varU %.2f varE %.2f\n", iter, varU, varE)
+        elseif onScreen==false
+             @printf("iter %s\n", iter)
+        end
+    end
+end
 
 #function fileControl(fixedRegSize)
 #    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]

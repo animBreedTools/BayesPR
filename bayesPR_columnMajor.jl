@@ -2,18 +2,18 @@ using DataFrames
 using Distributions
 
 function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)
-    SNPgroups = prepRegionData(snpInfo, chrs, genoTrain, fixedRegSize)
-    fileControl(fixedRegSize)
+    SNPgroups, genoX = prepRegionData(snpInfo, chrs, genoTrain, fixedRegSize)
     these2Keep = collect((burnIn+1):outputFreq:chainLength) #print these iterations
     nRegions    = length(SNPgroups)
     println("number of regions: ", nRegions)
     dfEffectVar = 4.0
     dfRes       = 4.0
-    X           = convert(Array{Float64}, genoTrain)
+    X           = convert(Array{Float64}, genoX[:,2:end])
     println("X is this size", size(X))
     y           = convert(Array{Float64}, phenoTrain)
     println("y is this size", size(y))
-    nRecords , nMarkers   = size(y,1), size(X,2)
+    nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
+    fileControl(nTraits, fixedRegSize)
     p           = mean(X,1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     varBeta         = fill(varGenotypic/sum2pq, nRegions)
@@ -53,7 +53,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
             end
             varBeta[r] = sampleVarBeta(νS_β,tempBetaVec[theseLoci],df_β,regionSize)
         end
-        outputControl(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
+        outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
     end
 #    betaFromFile =  readcsv(pwd()"/betaOut",header=false)
 #    print("read $(size(betaFromFile,1)) samples for $(size(betaFromFile,2)) markers from betaOut \n")
@@ -70,11 +70,16 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     mapData = readtable("$snpInfo", header=false, separator=' ')
     headMap = [:row, :snpID, :snpOrder ,:chrID, :pos]
     rename!(mapData , names(mapData), headMap)
-#    print(head(mapData))
+    print(mapData[1:10,:])
+    mapData[:snpID] = ["M$i" for i in 1:size(mapData,1)] #to convert original IDs like "HAPMAP43437-BTA-101873"
     print(mapData[1:10,:])
     ###
-    mapData[:chrID] .<= chrs
-    totLoci = size(genoTrain,2)
+    mapData = mapData[mapData[:chrID] .<= chrs,:]
+    # if first col in genoTrain is ID
+    # I find cols that are in mapData (<chrs), and select those
+     genoX = genoTrain[:,[1; [find(i -> i == j, names(genoData))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]]
+    #genoX = genoTrain[:,[find(i -> i == j, names(genoData))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]
+    totLoci = size(genoX[:,2:end],2) # first col is ID
     snpInfoFinal = DataFrame(Any, 0, 3)
     for c in 1:chrs
         thisChr = mapData[mapData[:chrID] .== c,:]
@@ -99,34 +104,76 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     for g in 1:accRegion
         push!(SNPgroups,searchsorted(snpInfoFinal[:,3], g))
     end
-    return SNPgroups
+    return SNPgroups, genoX
 end
 
-function outputControl(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
+#function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,fixedRegSize)
+#    if iter in these2Keep
+#        out0 = open(pwd()*"/muOut$fixedRegSize", "a")
+#        writecsv(out0, μ)
+#        close(out0) 
+#        out1 = open(pwd()*"/betaOut$fixedRegSize", "a")
+#        writecsv(out1, tempBetaVec')
+#        close(out1)
+#        out2 = open(pwd()*"/varBetaOut$fixedRegSize", "a")
+#        writecsv(out2, varBeta')
+#        close(out2)
+#        out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
+#        writecsv(out3, varE)
+#        close(out3)    
+#        if onScreen==true
+#            varU = var(X*tempBetaVec)
+#            @printf("iter %s varU %.2f varE %.2f\n", iter, varU, varE)
+#        elseif onScreen==false
+#             @printf("iter %s\n", iter)
+#        end
+#    end
+#end
+
+#function fileControl(fixedRegSize)
+#    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
+#        if isfile(f)==true
+#            rm(f)
+#            println("$f removed")
+#        end
+#    end
+#end
+
+outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
     if iter in these2Keep
         out0 = open(pwd()*"/muOut$fixedRegSize", "a")
         writecsv(out0, μ)
-        close(out0) 
-        out1 = open(pwd()*"/betaOut$fixedRegSize", "a")
-        writecsv(out1, tempBetaVec')
-        close(out1)
-        out2 = open(pwd()*"/varBetaOut$fixedRegSize", "a")
-        writecsv(out2, varBeta')
-        close(out2)
+        close(out0)
+        for t in 1:nTraits
+            out1 = open(pwd()*"/beta"*"$t"*"Out$fixedRegSize", "a")
+            writecsv(out1, tempBetaMat[:,t]')
+            close(out1)
+            out2 = open(pwd()*"/varBeta"*"$t"*"Out$fixedRegSize", "a")
+            writecsv(out2, vcat(covBeta...)[t,t]') #works only for bivariate
+            close(out2)
+        end
+        outCov = open(pwd()*"/covBetaOut$fixedRegSize", "a")
+        writecsv(outCov, vcat(covBeta...)[1,2]') #works only for bivariate
+        close(outCov)
         out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
-        writecsv(out3, varE)
+        writecsv(out3, Rmat)
         close(out3)    
         if onScreen==true
-            varU = var(X*tempBetaVec)
-            @printf("iter %s varU %.2f varE %.2f\n", iter, varU, varE)
+            varU = var(X*tempBetaMat[:,1])
+            println("iter $iter \nvarU: $varU \nvarE: $Rmat \n")
         elseif onScreen==false
              @printf("iter %s\n", iter)
         end
     end
 end
 
-function fileControl(fixedRegSize)
-    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
+function fileControl(nTraits,fixedRegSize)
+    files2Remove = ["muOut$fixedRegSize","varEOut$fixedRegSize"]
+    for t in 1:nTraits
+        push!(files2Remove,"beta"*"$t"*"Out$fixedRegSize")
+        push!(files2Remove,"varBeta"*"$t"*"Out$fixedRegSize")
+    end
+    for f in files2Remove
         if isfile(f)==true
             rm(f)
             println("$f removed")
@@ -143,4 +190,15 @@ function sampleVarBeta(νS_β,whichLoci,df_β,regionSize)
 end
 function sampleVarE(νS_e,yCorVec,df_e,nRecords)
     return((νS_e + dot(yCorVec,yCorVec))/rand(Chisq(df_e + nRecords)))
+end
+function sampleBetaVec(meanBeta, mmeLhs)
+    return rand(MvNormal(meanBeta, inv(convert(Array,Symmetric(mmeLhs)))))'
+end
+function sampleCovBeta(dfβ, regionSize, Vb , tempBetaMat, theseLoci)
+    Sb = tempBetaMat[theseLoci,:]'*tempBetaMat[theseLoci,:]
+    return rand(InverseWishart(dfβ + regionSize, Vb + Sb))
+end
+function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
+     Sr = [ycorr1 ycorr2]'* [ycorr1 ycorr2]
+    return rand(InverseWishart(dfR + nRecords,VR + Sr))
 end

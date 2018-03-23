@@ -243,7 +243,7 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
         writecsv(outCov, printThis) #works only for bivariate
         close(outCov)
         out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
-        writecsv(out3, vec(Rmat))
+        writecsv(out3, vec(Rmat)')
         close(out3)    
         if onScreen==true
             varU = cov(X*tempBetaMat')

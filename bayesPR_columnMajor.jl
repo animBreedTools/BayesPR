@@ -3,7 +3,11 @@ using Distributions
 
 function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)
     SNPgroups, genoX = prepRegionData(snpInfo, chrs, genoTrain, fixedRegSize)
+<<<<<<< HEAD
     these2Keep = collect((burnIn+outputFreq):outputFreq:chainLength) #print these iterations
+=======
+    these2Keep = collect((burnIn+1):outputFreq:chainLength) #print these iterations
+>>>>>>> origin/master
     nRegions    = length(SNPgroups)
     println("number of regions: ", nRegions)
     dfEffectVar = 4.0
@@ -63,7 +67,11 @@ end
 
 function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypic, varResidual, chainLength, burnIn, outputFreq, onScreen)
     SNPgroups, genoX = prepRegionData(snpInfo, chrs, genoTrain, fixedRegSize)
+<<<<<<< HEAD
     these2Keep = collect((burnIn+outputFreq):outputFreq:chainLength) #print these iterations
+=======
+    these2Keep = collect((burnIn+1):outputFreq:chainLength) #print these iterations
+>>>>>>> origin/master
     nRegions    = length(SNPgroups)
     println("number of regions: ", nRegions)
     dfEffect    = 4.0
@@ -83,6 +91,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     Vb          = covBeta[1].*(dfEffect-nTraits-1)
     VR          = varResidual.*(dfR - nTraits - 1)
     #initial Beta values as "0"
+<<<<<<< HEAD
     tempBetaMat     = zeros(Float64,nTraits,nMarkers)
     μ = mean(Y,1)    
     X              .-= ones(Float64,nRecords)*2p
@@ -92,6 +101,12 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
 #        x1x2pTrial[locus] = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])'
 #    end
     
+=======
+    tempBetaMat     = zeros(Float64,nMarkers,nTraits)
+    μ = mean(Y,1)    
+    X              .-= ones(Float64,nRecords)*2p
+    #allocate memory
+>>>>>>> origin/master
     x1x2 = zeros(Float64,length(vec(Y)),nTraits)
     ycorr1 = zeros(Float64,nTraits,length(Y[:,1]))
     ycorr2 = zeros(Float64,nTraits,length(Y[:,2]))
@@ -102,8 +117,12 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     for iter in 1:chainLength
         #sample residual var
         Rmat = sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
+<<<<<<< HEAD
 #       Ri = inv(kron(Rmat,eye(nRecords)))        #sample intercept
         Ri = kron(inv(Rmat),eye(nRecords))
+=======
+        Ri = inv(kron(Rmat,eye(nRecords)))        #sample intercept
+>>>>>>> origin/master
         
         # sample intercept
         ycorr1 += μ[1]
@@ -128,6 +147,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
             regionSize = length(theseLoci)
             invB = inv(covBeta[r])
             for locus in theseLoci
+<<<<<<< HEAD
                 BLAS.axpy!(tempBetaMat[1,locus], X[:,locus], ycorr1)
                 BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2)
                 x1x2   = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])
@@ -143,6 +163,22 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
             covBeta[r] = sampleCovBeta(dfβ,regionSize,Vb,tempBetaMat, theseLoci)
         end
         outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize,nRegions)
+=======
+                BLAS.axpy!(tempBetaMat[locus,1], X[:,locus], ycorr1)
+                BLAS.axpy!(tempBetaMat[locus,2], X[:,locus], ycorr2)
+                x1x2   = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])
+                rhs    = x1x2'*Ri*[ycorr1;ycorr2]
+                mmeLhs = x1x2'*Ri*x1x2 + invB
+                invLhs = inv(mmeLhs)
+                meanBeta = invLhs*rhs
+                tempBetaMat[locus,:] = rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
+                BLAS.axpy!(-1*tempBetaMat[locus,1], X[:,locus], ycorr1)
+                BLAS.axpy!(-1*tempBetaMat[locus,2], X[:,locus], ycorr2)
+            end
+            covBeta[r] = sampleCovBeta(dfβ,regionSize,Vb,tempBetaMat, theseLoci)
+        end
+        outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
+>>>>>>> origin/master
     end
 end
 
@@ -224,13 +260,18 @@ end
 #    end
 #end
 
+<<<<<<< HEAD
 function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize,nRegions)
+=======
+function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize)
+>>>>>>> origin/master
     if iter in these2Keep
         out0 = open(pwd()*"/muOut$fixedRegSize", "a")
         writecsv(out0, μ)
         close(out0)
         for t in 1:nTraits
             out1 = open(pwd()*"/beta"*"$t"*"Out$fixedRegSize", "a")
+<<<<<<< HEAD
             writecsv(out1, tempBetaMat[t,:]')
             close(out1)
             out2 = open(pwd()*"/varBeta"*"$t"*"Out$fixedRegSize", "a")
@@ -241,12 +282,26 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
         outCov = open(pwd()*"/covBetaOut$fixedRegSize", "a")
         printThis = [vcat(covBeta[r]...)[3] for r in 1:nRegions]'
         writecsv(outCov, printThis) #works only for bivariate
+=======
+            writecsv(out1, tempBetaMat[:,t]')
+            close(out1)
+            out2 = open(pwd()*"/varBeta"*"$t"*"Out$fixedRegSize", "a")
+            writecsv(out2, vcat(covBeta...)[t,t]') #works only for bivariate
+            close(out2)
+        end
+        outCov = open(pwd()*"/covBetaOut$fixedRegSize", "a")
+        writecsv(outCov, vcat(covBeta...)[1,2]') #works only for bivariate
+>>>>>>> origin/master
         close(outCov)
         out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
         writecsv(out3, Rmat)
         close(out3)    
         if onScreen==true
+<<<<<<< HEAD
             varU = cov(X*tempBetaMat')
+=======
+            varU = cov(X*tempBetaMat)
+>>>>>>> origin/master
             println("iter $iter \nvarU: $varU \nvarE: $Rmat \n")
         elseif onScreen==false
              @printf("iter %s\n", iter)
@@ -255,7 +310,11 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
 end
 
 function fileControl(nTraits,fixedRegSize)
+<<<<<<< HEAD
     files2Remove = ["muOut$fixedRegSize","varEOut$fixedRegSize","covBetaOut$fixedRegSize"]
+=======
+    files2Remove = ["muOut$fixedRegSize","varEOut$fixedRegSize"]
+>>>>>>> origin/master
     for t in 1:nTraits
         push!(files2Remove,"beta"*"$t"*"Out$fixedRegSize")
         push!(files2Remove,"varBeta"*"$t"*"Out$fixedRegSize")
@@ -282,7 +341,11 @@ function sampleBetaVec(meanBeta, mmeLhs)
     return rand(MvNormal(meanBeta, inv(convert(Array,Symmetric(mmeLhs)))))'
 end
 function sampleCovBeta(dfβ, regionSize, Vb , tempBetaMat, theseLoci)
+<<<<<<< HEAD
     Sb = tempBetaMat[:,theseLoci]*tempBetaMat[:,theseLoci]'
+=======
+    Sb = tempBetaMat[theseLoci,:]'*tempBetaMat[theseLoci,:]
+>>>>>>> origin/master
     return rand(InverseWishart(dfβ + regionSize, Vb + Sb))
 end
 function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)

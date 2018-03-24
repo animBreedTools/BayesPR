@@ -87,12 +87,13 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     μ = mean(Y,1)    
     X              .-= ones(Float64,nRecords)*2p
     #allocate memory
-#    x1x2pTrial = Array{Array{Float32,2}}(1,nMarkers)
-#    for locus in 1:nMarkers
-#        x1x2pTrial[locus] = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])'
-#    end
-    
-    x1x2 = zeros(Float64,length(vec(Y)),nTraits)
+    x1x2    = zeros(Float64,length(vec(Y)),nTraits)
+    x1x2pRi = zeros(Float64,nTraits,length(vec(Y)))
+    x1x2T   = Array{Array{Float32,2}}(nMarkers)
+    for locus in 1:nMarkers
+        x1x2T[locus] = [X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]]
+    end
+
     ycorr1 = zeros(Float64,nTraits,length(Y[:,1]))
     ycorr2 = zeros(Float64,nTraits,length(Y[:,2]))
     
@@ -102,9 +103,8 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     for iter in 1:chainLength
         #sample residual var
         Rmat = sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
-#       Ri = inv(kron(Rmat,eye(nRecords)))        #sample intercept
         Ri = kron(inv(Rmat),eye(nRecords))
-        
+
         # sample intercept
         ycorr1 += μ[1]
         rhs1 = sum(ycorr1)
@@ -129,14 +129,8 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
             invB = inv(covBeta[r])
             for locus in theseLoci
                 BLAS.axpy!(tempBetaMat[1,locus], X[:,locus], ycorr1)
-                BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2)
-                x1x2   = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])
-                x1x2pRi  = x1x2'*Ri
-                rhs    = x1x2pRi*[ycorr1;ycorr2]
-                mmeLhs = x1x2pRi*x1x2 + invB
-                invLhs = inv(mmeLhs)
-                meanBeta = invLhs*rhs
-                tempBetaMat[:,locus] = rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
+                BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2)                
+                tempBetaMat[:,locus] = mmeRun2(locus,x1x2,x1x2T,x1x2pRi,nRecords,ycorr1,ycorr2,Ri,invB)
                 BLAS.axpy!(-1*tempBetaMat[1,locus], X[:,locus], ycorr1)
                 BLAS.axpy!(-1*tempBetaMat[2,locus], X[:,locus], ycorr2)
             end
@@ -278,9 +272,6 @@ end
 function sampleVarE(νS_e,yCorVec,df_e,nRecords)
     return((νS_e + dot(yCorVec,yCorVec))/rand(Chisq(df_e + nRecords)))
 end
-function sampleBetaVec(meanBeta, mmeLhs)
-    return rand(MvNormal(meanBeta, inv(convert(Array,Symmetric(mmeLhs)))))'
-end
 function sampleCovBeta(dfβ, regionSize, Vb , tempBetaMat, theseLoci)
     Sb = tempBetaMat[:,theseLoci]*tempBetaMat[:,theseLoci]'
     return rand(InverseWishart(dfβ + regionSize, Vb + Sb))
@@ -288,4 +279,20 @@ end
 function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
      Sr = [ycorr1 ycorr2]'* [ycorr1 ycorr2]
     return rand(InverseWishart(dfR + nRecords,VR + Sr))
+end
+function mmeRun1(X,locus,nRecords,ycorr1,ycorr2,Ri,invB)
+    x1x2   = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])
+    x1x2pRi= x1x2'*Ri
+    rhs    = x1x2pRi*[ycorr1;ycorr2]
+    invLhs = inv(x1x2pRi*x1x2 + invB)
+    meanBeta = invLhs*rhs    
+    return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
+end
+function mmeRun2(locus,x1x2,x1x2T,x1x2pRi,nRecords,ycorr1,ycorr2,Ri,invB) #memory optimized way
+    x1x2 .= x1x2T[locus]
+    x1x2pRi  .= x1x2'*Ri
+    rhs    = x1x2pRi*[ycorr1;ycorr2]
+    invLhs = inv(x1x2pRi*x1x2 + invB)
+    meanBeta = invLhs*rhs    
+    return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
 end

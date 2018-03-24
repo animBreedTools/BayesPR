@@ -17,7 +17,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     p           = mean(X,1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     if varGenotypic==0.0
-        varBeta      = fill(0.005, nRegions)
+        varBeta      = fill(0.0005, nRegions)
         else varBeta = fill(varGenotypic/sum2pq, nRegions)
     end
     scaleVar        = varBeta[1]*(dfEffectVar-2.0)/dfEffectVar

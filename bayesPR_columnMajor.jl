@@ -20,6 +20,9 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
         varBeta      = fill(0.0005, nRegions)
         else varBeta = fill(varGenotypic/sum2pq, nRegions)
     end
+    if varResidual==0.0
+        varResidual  = 0.0005
+    end
     scaleVar        = varBeta[1]*(dfEffectVar-2.0)/dfEffectVar
     νS_β            = scaleVar*dfEffectVar
     df_β            = dfEffectVar
@@ -82,6 +85,9 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     if varGenotypic==0.0
         covBeta       = fill(0.003,nRegions)
         else covBeta  = fill(varGenotypic/sum2pq,nRegions)
+    end
+    if varResidual==0.0
+        varResidual   = [0.003 0;0 0.003]
     end
      #priors#
     dfβ         = dfEffect + nTraits

@@ -13,7 +13,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     y           = convert(Array{Float64}, phenoTrain)
     println("y is this size", size(y))
     nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
-    fileControl(nTraits, fixedRegSize)
+    fileControlSt(nTraits, fixedRegSize)
     p           = mean(X,1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     varBeta         = fill(varGenotypic/sum2pq, nRegions)
@@ -209,14 +209,14 @@ function outputControlSt(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,
     end
 end
 
-#function fileControl(fixedRegSize)
-#    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
-#        if isfile(f)==true
-#            rm(f)
-#            println("$f removed")
-#        end
-#    end
-#end
+function fileControlSt(fixedRegSize)
+    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
+        if isfile(f)==true
+            rm(f)
+            println("$f removed")
+        end
+    end
+end
 
 function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize,nRegions)
     if iter in these2Keep

@@ -13,7 +13,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     y           = convert(Array{Float64}, phenoTrain)
     println("y is this size", size(y))
     nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
-    fileControlSt(nTraits, fixedRegSize)
+    fileControlSt(fixedRegSize)
     p           = mean(X,1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     varBeta         = fill(varGenotypic/sum2pq, nRegions)

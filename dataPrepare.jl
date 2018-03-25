@@ -4,7 +4,7 @@ function samplePop(genotypes,whichGen,snpInfo,chr,nRef,nTest)
     tempMapData = tempMapData[tempMapData[:x4].<=chr,:]
     nTot = nRef+nTest
     if length(whichGen)==1
-        genLims = ((2200*whichGen)-2200+1):(2200*whichGen)
+        genLims = ((2200*whichGen[1])-2200+1):(2200*whichGen[1])
         println("these individuals were used to select populations ",genLims)
         allInd  = sample(genLims, nTot, replace=false)
         refInd  = allInd[1:nRef]

@@ -172,6 +172,7 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     #genoX = genoTrain[:,[find(i -> i == j, names(genoData))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]
     totLoci = size(genoX[:,2:end],2) # first col is ID
     snpInfoFinal = DataFrame(Any, 0, 3)
+    print("I am here")
     if fixedRegSize==99
         println("fixedRedSize $fixedRegSize")
         snpInfoFinal = mapData[:,[:snpID,:snpOrder,:chrID]]

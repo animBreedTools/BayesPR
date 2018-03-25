@@ -83,7 +83,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     p           = mean(X,1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     if varGenotypic==0.0
-        covBeta       = fill(0.003,nRegions)
+        covBeta       = fill([0.003 0;0 0.003],nRegions)
         else covBeta  = fill(varGenotypic/sum2pq,nRegions)
     end
     if varResidual==0.0

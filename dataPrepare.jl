@@ -1,13 +1,21 @@
 function samplePop(genotypes,whichGen,snpInfo,chr,nRef,nTest)
     @printf("read %.0f individuals and %.0f genotypes \n", size(genotypes,1),size(genotypes,2)-1)
     tempMapData = readtable(snpInfo,header=false,separator=' ')
-    tempMapData = tempMapData[tempMapData[:x4].<=chr,:]    
+    tempMapData = tempMapData[tempMapData[:x4].<=chr,:]
+    nTot = nRef+nTest
+    if length(whichGen)==1
+        genLims = ((2200*whichGen)-2200+1):(2200*whichGen)
+        allInd  = sample(genLims, nTot, replace=false)
+        refInd  = allInd[1:nRef]
+        testInd = allInd[(nRef+1):end]
+    end
+    if length(whichGen)>1
     refGener   = 1:(whichGen[1,:][end]*2200)
     testGener  = ((whichGen[1,:][end]*2200)+1):(whichGen[2,:][end]*2200)
     refInd     = sample(refGener, nRef, replace=false)
     testInd    = sample(testGener, nTest, replace=false)
-    allInd     = [refInd ;testInd]    
-    nTot = nRef+nTest
+    allInd     = [refInd ;testInd]
+    end
     popGeno = genotypes[allInd,1:(size(tempMapData,1)+1)]
     @printf("returning %.0f individuals and %.0f genotypes on %.0f chromosomes \n", size(popGeno,1),size(popGeno,2)-1,chr)
     return nTot, refInd, testInd, popGeno

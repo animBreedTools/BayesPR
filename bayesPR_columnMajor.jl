@@ -173,10 +173,10 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     totLoci = size(genoX[:,2:end],2) # first col is ID
     snpInfoFinal = DataFrame(Any, 0, 3)
     if fixedRegSize==99
-        snpInfoFinal[:,1:3] = mapData[:,[:snpID,:snpOrder,:chrID]]
+        snpInfoFinal = mapData[:,[:snpID,:snpOrder,:chrID]]
         elseif fixedRegSize==9999
-            snpInfoFinal[:,1:2] = mapData[:,[:snpID,:snpOrder]]
-            snpInfoFinal[:,3]  .= 1
+            snpInfoFinal = mapData[:,[:snpID,:snpOrder,:chrID]]
+            snpInfoFinal[:,:chrID]  .= 1
         else
         for c in 1:chrs
             thisChr = mapData[mapData[:chrID] .== c,:]

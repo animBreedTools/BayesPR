@@ -172,25 +172,32 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     #genoX = genoTrain[:,[find(i -> i == j, names(genoData))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]
     totLoci = size(genoX[:,2:end],2) # first col is ID
     snpInfoFinal = DataFrame(Any, 0, 3)
-    for c in 1:chrs
-        thisChr = mapData[mapData[:chrID] .== c,:]
-        totLociChr = size(thisChr,1)
-        TotRegions = ceil(Int,totLociChr/fixedRegSize)
-        accRegion += TotRegions
-        push!(accRegionVec, accRegion)
-        tempGroups = sort(repmat(collect(accRegionVec[c]+1:accRegionVec[c+1]),fixedRegSize))
-#        tempGroups = sort(repmat(collect(1:TotRegions),fixedRegSize))
-        snpInfo = DataFrame(Any, length(tempGroups), 3)
-        snpInfo[1:totLociChr,1] = collect(1:totLociChr)
-        snpInfo[1:totLociChr,2] = thisChr[:snpID]
-        snpInfo[:,3] = tempGroups
-        dropmissing!(snpInfo)
-        snpInfoFinal = vcat(snpInfoFinal,snpInfo)
-#        rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
-        @printf("chr %.0f has %.0f groups \n", c, TotRegions)
-#        println(counts(snpInfo[:,3]))
-        println(by(snpInfo, :x3, nrow)[:,2])
-    end
+    if fixedRegSize==99
+        snpInfoFinal[:,1:3] = mapData[:,[:snpID,:snpOrder,:chrID]]
+        elseif fixedRegSize==9999
+            snpInfoFinal[:,1:2] = mapData[:,[:snpID,:snpOrder]]
+            snpInfoFinal[:,3]  .= 1
+        else
+        for c in 1:chrs
+            thisChr = mapData[mapData[:chrID] .== c,:]
+            totLociChr = size(thisChr,1)
+            TotRegions = ceil(Int,totLociChr/fixedRegSize)
+            accRegion += TotRegions
+            push!(accRegionVec, accRegion)
+            tempGroups = sort(repmat(collect(accRegionVec[c]+1:accRegionVec[c+1]),fixedRegSize))
+#           tempGroups = sort(repmat(collect(1:TotRegions),fixedRegSize))
+            snpInfo = DataFrame(Any, length(tempGroups), 3)
+            snpInfo[1:totLociChr,1] = collect(1:totLociChr)
+            snpInfo[1:totLociChr,2] = thisChr[:snpID]
+            snpInfo[:,3] = tempGroups
+            dropmissing!(snpInfo)
+            snpInfoFinal = vcat(snpInfoFinal,snpInfo)
+#           rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
+            @printf("chr %.0f has %.0f groups \n", c, TotRegions)
+#           println(counts(snpInfo[:,3]))
+            println(by(snpInfo, :x3, nrow)[:,2])
+        end
+        end  #ends if control flow
     print(snpInfoFinal)
     for g in 1:accRegion
         push!(SNPgroups,searchsorted(snpInfoFinal[:,3], g))

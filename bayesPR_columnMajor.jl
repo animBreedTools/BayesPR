@@ -176,9 +176,11 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     if fixedRegSize==99
         println("fixedRedSize $fixedRegSize")
         snpInfoFinal = mapData[:,[:snpID,:snpOrder,:chrID]]
+        accRegion    = length(unique(mapData[:chrID]))
         elseif fixedRegSize==9999
             snpInfoFinal = mapData[:,[:snpID,:snpOrder,:chrID]]
             snpInfoFinal[:,:chrID]  .= 1
+            accRegion    = 1
         else
         for c in 1:chrs
             thisChr = mapData[mapData[:chrID] .== c,:]

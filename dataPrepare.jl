@@ -5,8 +5,8 @@ function samplePop(genotypes,whichGen,snpInfo,chr,nRef,nTest)
     nTot = nRef+nTest
     if length(whichGen)==1
         genLims = ((2200*whichGen)-2200+1):(2200*whichGen)
-        println(genLims)
-        allInd  = sample(collect(genLims), nTot, replace=false)
+        println("these individuals were used to select populations ",genLims)
+        allInd  = sample(genLims, nTot, replace=false)
         refInd  = allInd[1:nRef]
         testInd = allInd[(nRef+1):end]
     end

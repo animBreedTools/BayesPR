@@ -65,7 +65,7 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     infoSimQTL[:snpID] = [names(popGeno)[QTLs]
     infoSimQTL[:snpOrder] = QTLs-1
     infoSimQTL[(vcat(q1QTLs,q12QTLs)-1),:q1QTL] = .1
-    infoSimQTL[vcat(q12QTLs,q2QTLs)-1),:q2QTL] = .1
+    infoSimQTL[(vcat(q12QTLs,q2QTLs)-1),:q2QTL] = .1
     infoSimQTL[(QTLs-1),:simEffect] .= alpha
     println(infoSimQTL)
     writetable("infoSimQTL",infoSimQTL)

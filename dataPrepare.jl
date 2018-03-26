@@ -29,10 +29,10 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     selectedLoci = []
     p = mean(convert(Array,popGeno[:,2:end]),1)/2.0
     while length(selectedLoci) < totQTLs
-        oneLoci = sample(2:size(popGeno,2), 1, replace=false)
+        oneLoci = sample(2:size(popGeno,2), 1, replace=false) #column of loci
         uniLoci = rand(Uniform(0,meanMaf))
         if(meanMaf-uniLoci)< p[oneLoci-1][] <= (meanMaf+uniLoci)  #this -1 is because p has 1 less length bec. popGeno has ID
-            @printf("loci %.0f lower %.3f maf %.3f upper %.3f \n", oneLoci[],meanMaf-uniLoci,p[oneLoci-1][],meanMaf+uniLoci)
+            @printf("loci %.0f lower %.3f maf %.3f upper %.3f \n", names(popGeno)(oneLoci[]),meanMaf-uniLoci,p[oneLoci-1][],meanMaf+uniLoci)
             push!(selectedLoci,oneLoci)
         end
     end
@@ -61,10 +61,11 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     println("residual cov: $R")
     println("heritabilities: $h2sim")
     
-    infoSimQTL = DataFrame([names(popGeno)[QTLs-1] vcat([ones(q1QTLs), ones(q12QTLs), zeros(q2QTLs)]...) vcat([zeros(q1QTLs), ones(q12QTLs), ones(q2QTLs)]...) alpha])
+    infoSimQTL = DataFrame([names(popGeno)[QTLs] vcat([ones(q1QTLs), ones(q12QTLs), zeros(q2QTLs)]...) vcat([zeros(q1QTLs), ones(q12QTLs), ones(q2QTLs)]...) alpha])
     println(infoSimQTL)
+    writetable("infoSimQTL",infoSimQTL)
     phenoData = DataFrame(ID = Int64[], pheno1 = Float64[], pheno2 = Float64[], u1 = Float64[], u2 = Float64[], e1 = Float64[], e2 = Float64[])
     [push!(phenoData, [popGeno[row,:ID] y1[row] y2[row] u1[row] u2[row] e[row,:1] e[row,:2]]) for row in 1:length(y1)]
     @printf("returning phenotypes of %.0f individuals \n", size(phenoData,1))
-    return QTLs, G, R, phenoData
+    return names(popGeno)[QTLs], G, R, phenoData
 end

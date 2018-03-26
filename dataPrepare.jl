@@ -32,7 +32,7 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
         oneLoci = sample(2:size(popGeno,2), 1, replace=false) #column of loci
         uniLoci = rand(Uniform(0,meanMaf))
         if(meanMaf-uniLoci)< p[oneLoci-1][] <= (meanMaf+uniLoci)  #this -1 is because p has 1 less length bec. popGeno has ID
-            @printf("loci %.0f lower %.3f maf %.3f upper %.3f \n", names(popGeno)[oneLoci],meanMaf-uniLoci,p[oneLoci-1][],meanMaf+uniLoci)
+            @printf("loci %.0f lower %.3f maf %.3f upper %.3f \n", oneLoci,meanMaf-uniLoci,p[oneLoci-1][],meanMaf+uniLoci)
             push!(selectedLoci,oneLoci)
         end
     end

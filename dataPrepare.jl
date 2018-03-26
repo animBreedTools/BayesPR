@@ -63,7 +63,6 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     
     infoSimQTL = DataFrame([names(popGeno)[QTLs-1] vcat([ones(q1QTLs), ones(q12QTLs), zeros(q2QTLs)]...) vcat([zeros(q1QTLs), ones(q12QTLs), ones(q2QTLs)]...) alpha])
     println(infoSimQTL)
-    #writetable("simQTLs",infoSimQTL)
     phenoData = DataFrame(ID = Int64[], pheno1 = Float64[], pheno2 = Float64[], u1 = Float64[], u2 = Float64[], e1 = Float64[], e2 = Float64[])
     [push!(phenoData, [popGeno[row,:ID] y1[row] y2[row] u1[row] u2[row] e[row,:1] e[row,:2]]) for row in 1:length(y1)]
     @printf("returning phenotypes of %.0f individuals \n", size(phenoData,1))

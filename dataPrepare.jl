@@ -62,7 +62,7 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     println("heritabilities: $h2sim")
     
     infoSimQTL = DataFrame(Any,0,5)
-    infoSimQTL[:snpID] = [names(popGeno)[QTLs]
+    infoSimQTL[:snpID] = names(popGeno)[QTLs]
     infoSimQTL[:snpOrder] = QTLs-1
     infoSimQTL[(vcat(q1QTLs,q12QTLs)-1),:q1QTL] .= 1
     infoSimQTL[(vcat(q12QTLs,q2QTLs)-1),:q2QTL] .= 1
@@ -72,5 +72,5 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     phenoData = DataFrame(ID = Int64[], pheno1 = Float64[], pheno2 = Float64[], u1 = Float64[], u2 = Float64[], e1 = Float64[], e2 = Float64[])
     [push!(phenoData, [popGeno[row,:ID] y1[row] y2[row] u1[row] u2[row] e[row,:1] e[row,:2]]) for row in 1:length(y1)]
     @printf("returning phenotypes of %.0f individuals \n", size(phenoData,1))
-    return names(popGeno)[QTLs], G, R, phenoData
+    return infoSimQTL[:snpID], G, R, phenoData
 end

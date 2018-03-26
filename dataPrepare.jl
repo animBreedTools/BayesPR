@@ -61,7 +61,7 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     println("residual cov: $R")
     println("heritabilities: $h2sim")
     
-    infoSimQTL = DataFrame(Any,(size(popGeno,2)-1),5)
+    infoSimQTL = DataFrame(0,(size(popGeno,2)-1),5)
     infoSimQTL[:snpID] .= names(popGeno)[QTLs]
     infoSimQTL[:snpOrder] .= QTLs-1
     infoSimQTL[(vcat(q1QTLs,q12QTLs)-1),:q1QTL] .= 1

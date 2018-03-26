@@ -62,7 +62,8 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     println("heritabilities: $h2sim")
     
     infoSimQTL = DataFrame(zeros((size(popGeno,2)-1),5))
-    infoSimQTL[:,1] .= names(popGeno)[QTLs]
+    println(names(popGeno)[selectedLoci])
+    infoSimQTL[:,1] .= names(popGeno)[selectedLoci]
     infoSimQTL[:,2] .= QTLs-1
     infoSimQTL[(vcat(q1QTLs,q12QTLs)-1),3] .= 1
     infoSimQTL[(vcat(q12QTLs,q2QTLs)-1),4] .= 1

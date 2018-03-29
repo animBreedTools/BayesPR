@@ -143,8 +143,8 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
             invB = inv(covBeta[r])
             for locus in theseLoci
                 BLAS.axpy!(tempBetaMat[1,locus], X[:,locus], ycorr1)
-                BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2)                
-                tempBetaMat[:,locus] = mmeRunFast(X,Ri,locus,xpx,nRecords,ycorr1,ycorr2,invB)
+                BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2) 
+                tempBetaMat[:,locus] = mmeRunFast(X[:,locus],Ri,locus,xpx,ycorr1,ycorr2,invB)
                 BLAS.axpy!(-1*tempBetaMat[1,locus], X[:,locus], ycorr1)
                 BLAS.axpy!(-1*tempBetaMat[2,locus], X[:,locus], ycorr2)
             end
@@ -320,11 +320,11 @@ end
 #    meanBeta = invLhs*rhs    
 #    return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
 #end
-function mmeRunFast(X,Ri,locus,xpx,ycorr1,ycorr2,invB)
-    r1 = X[:,locus]'*Ri[1]
-    r2 = X[:,locus]'*Ri[2]
-    r3 = X[:,locus]'*Ri[3]
-    r4 = X[:,locus]'*Ri[4]
+function mmeRunFast(x,Ri,locus,xpx,ycorr1,ycorr2,invB)
+    r1 = x'*Ri[1]
+    r2 = x'*Ri[2]
+    r3 = x'*Ri[3]
+    r4 = x'*Ri[4]
 
     rhs    = [r1 r2;r3 r4]*[ycorr1;ycorr2]
     invLhs = inv([xpx[locus] xpx[locus];
@@ -333,5 +333,3 @@ function mmeRunFast(X,Ri,locus,xpx,ycorr1,ycorr2,invB)
     meanBeta = invLhs*rhs    
     return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
 end
-
-

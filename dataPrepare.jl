@@ -75,5 +75,5 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     [push!(phenoData, [popGeno[row,:ID] y1[row] y2[row] u1[row] u2[row] e[row,:1] e[row,:2]]) for row in 1:length(y1)]
     writecsv("infoPheno",convert(Array,phenoData))
     @printf("returning phenotypes of %.0f individuals \n", size(phenoData,1))
-    return G, R, phenoData
+    return QTLs[1:end]-1, G, R, phenoData
 end

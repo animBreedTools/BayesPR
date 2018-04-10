@@ -174,7 +174,7 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     println("usedLoci",usedLoci)
     println("find",[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)])
     mapData = mapData[[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)],:] #trim map data
-    println("mapData",mapData)
+    println("mapData",mapData[[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)],:] )
     genoX = genoTrain[:,vcat(Symbol("ID"),usedLoci)]    #trim genoData
 #     genoX = genoTrain[:,[1; [find(i -> i == j, names(genoTrain))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]]
     #genoX = genoTrain[:,[find(i -> i == j, names(genoTrain))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]

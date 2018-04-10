@@ -171,10 +171,9 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     # if first col in genoTrain is ID
     # I find cols that are in mapData (<chrs), and select those
     usedLoci = intersect(names(genoTrain),Symbol.(mapData[:snpID]))
-    println("usedLoci",usedLoci)
+    println("mapData",mapData)
     println("find",[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)])
     mapData = mapData[[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)],:] #trim map data
-    println("mapData",mapData[[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)],:] )
     genoX = genoTrain[:,vcat(Symbol("ID"),usedLoci)]    #trim genoData
 #     genoX = genoTrain[:,[1; [find(i -> i == j, names(genoTrain))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]]
     #genoX = genoTrain[:,[find(i -> i == j, names(genoTrain))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]

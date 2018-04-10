@@ -165,7 +165,8 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     rename!(mapData , names(mapData), headMap)
     print(mapData[1:5,:])
     mapData[:snpID] = ["M$i" for i in 1:size(mapData,1)] #to convert original IDs like "HAPMAP43437-BTA-101873"
-    print(mapData[1:10,:])
+#    print(mapData[1:10,:])
+    println("mapData",mapData)
     ###
     mapData = mapData[mapData[:chrID] .<= chrs,:]
     # if first col in genoTrain is ID

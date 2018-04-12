@@ -42,8 +42,8 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     
     QTLs = vcat(selectedLoci...)   #columns of QTL since 1st column is ID
         
-#    alpha = rand(Normal(0,1.0),totQTLs)
-    alpha = rand(Gamma(0.4,1.66),totQTLs)
+    alpha = rand(Normal(0.0,1.0),totQTLs)
+#    alpha = rand(Gamma(0.4,1.66),totQTLs)
     u1 = convert(Array,popGeno[:,QTLs])*(vcat([ones(q1QTLs), ones(q12QTLs), zeros(q2QTLs)]...).*alpha)
     vare1 = cov(u1)*(1-h2_1)/h2_1
     

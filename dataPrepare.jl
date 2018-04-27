@@ -44,10 +44,17 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
         
 #    alpha = rand(Normal(0.0,1.0),totQTLs)
     alpha = rand(Gamma(0.4,1.66),totQTLs)
-    u1 = convert(Array,popGeno[:,QTLs])*(vcat([ones(q1QTLs), ones(q12QTLs), zeros(q2QTLs)]...).*alpha)
+    
+    ###if you want zero mean BV
+    Xc     = convert(Array{Float64},popGeno)
+    Xc[:,2:end]   .-= ones(Float64,size(popGeno,1))*2p
+    Qc     = Xc[:,QTLs]
+    #### otherwise, Qc = convert(Array,popGeno[:,QTLs])
+    
+    u1 = Qc*(vcat([ones(q1QTLs), ones(q12QTLs), zeros(q2QTLs)]...).*alpha)
     vare1 = cov(u1)*(1-h2_1)/h2_1
     
-    u2 = convert(Array,popGeno[:,QTLs])*(vcat([zeros(q1QTLs), ones(q12QTLs), ones(q2QTLs)]...).*alpha)
+    u2 = Qc*(vcat([zeros(q1QTLs), ones(q12QTLs), ones(q2QTLs)]...).*alpha)
     vare2 = cov(u2)*(1-h2_2)/h2_2
     
     e = rand(MvNormal([0.0; 0.0],[vare1 0;0 vare2]),size(popGeno,1))'

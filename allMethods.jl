@@ -1,6 +1,6 @@
 
 # adapted from http://morotalab.org/Mrode2005/relmat/createA.txt
-function makeA(s::Int, d::Int)
+function makeA(s::Array, d::Array)
     n = length(s)
     N = n + 1
     A = zeros(N, N)

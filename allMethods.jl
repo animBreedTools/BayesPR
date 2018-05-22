@@ -1,6 +1,6 @@
 
 # adapted from http://morotalab.org/Mrode2005/relmat/createA.txt
-function makeA(s, d)
+function makeA(s::Int, d::Int)
     n = length(s)
     N = n + 1
     A = zeros(N, N)
@@ -17,7 +17,7 @@ for i in 1:n
 return(A[1:n, 1:n])
 end
 
-function stJWAS(phenoData_G4,phenoData_G5,genoData_Combined,trait,BayesX,π,nChain,nThin,varR,varG)
+function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,BayesX::String,π,nChain,nThin,varR,varG)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])

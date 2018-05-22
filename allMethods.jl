@@ -17,8 +17,6 @@ for i in 1:n
 return(A[1:n, 1:n])
 end
 
-
-
 function stJWAS(phenoData_G4,phenoData_G5,genoData_Combined,trait,BayesX,π,nChain,nThin,varR,varG)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])

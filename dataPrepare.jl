@@ -22,7 +22,7 @@ function samplePop(genotypes,whichGen,snpInfo,chr,nRef,nTest)
     return nTot, refInd, testInd, popGeno
 end 
 
-function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
+function simPheno(popGeno,h2_1,h2_2,meanMaf,dist,parms,q1QTLs,q2QTLs,q12QTLs)
     @printf("read %.0f individuals and %.0f genotypes \n", size(popGeno,1),size(popGeno,2)-1)
     totQTLs = q1QTLs + q2QTLs + q12QTLs
     
@@ -43,7 +43,8 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,q1QTLs,q2QTLs,q12QTLs)
     QTLs = vcat(selectedLoci...)   #columns of QTL since 1st column is ID
         
 #    alpha = rand(Normal(0.0,1.0),totQTLs)
-    alpha = rand(Gamma(0.4,1.66),totQTLs)
+#    alpha = rand(Gamma(0.4,1.66),totQTLs)
+    alpha = eval(parse("rand($dist$parms,$totQTLs)"))
     
     ###if you want zero mean BV
     Xc     = convert(Array{Float64},popGeno)

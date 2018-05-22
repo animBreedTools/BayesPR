@@ -140,7 +140,7 @@ function wSNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combi
     return r_wSNPBLUP
 end
 
-function PBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,popPedigree::DataFrame,trait::Int,varR::Float64,varG::Float64)
+function PBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,popPedigree::Array,trait::Int,varR::Float64,varG::Float64)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
@@ -177,7 +177,7 @@ function PBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined
     return r_PBLUP
 end
 
-function prepDataSSBR(phenoData_G4::DataFrame,genoData_Combined::DataFrame,popPedigree::DataFrame,trait::Int)
+function prepDataSSBR(phenoData_G4::DataFrame,genoData_Combined::DataFrame,popPedigree::Array,trait::Int)
     nTot = size(popPedigree,1)
     allInd    = collect(1:nTot)
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID]);

@@ -17,7 +17,7 @@ for i in 1:n
 return(A[1:n, 1:n])
 end
 
-function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,BayesX::String,π::Float32,nChain::Int,nThin::Int,varR::Float32,varG::Float32)
+function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,BayesX::String,π::Float64,nChain::Int,nThin::Int,varR::Float64,varG::Float64)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
@@ -55,7 +55,7 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
     return r_Bayes, varE_Bayes, varSNP_Bayes
 end
 
-function SNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,varR::Float32,varSNP::Float32)
+function SNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,varR::Float64,varSNP::Float64)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
@@ -96,7 +96,7 @@ function SNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combin
     return r_SNPBLUP
 end
 
-function wSNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,varR::Float32,varSNP::Array)
+function wSNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,varR::Float64,varSNP::Array)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
@@ -140,7 +140,7 @@ function wSNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combi
     return r_wSNPBLUP
 end
 
-function PBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,popPedigree::DataFrame,trait::Int,varR::Float32,varG::Float32)
+function PBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,popPedigree::DataFrame,trait::Int,varR::Float64,varG::Float64)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])

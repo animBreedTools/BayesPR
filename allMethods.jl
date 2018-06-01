@@ -82,12 +82,12 @@ function SNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combin
     βhat = X' * inv(X*X' + eye(nInd)*λ) * y
 
     #not IDs, rows!
-    # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[201:end]]
+    # first 200 in G3 and G4 are sires gNoPInd[201:end]
+    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]]
     phenoTest = phenoData_G5[testRows,:];
     #not IDs, rows!
     # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[201:end]]
+    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
     genoTest = genoData_Combined[testRows,2:end];
 
     uHat = convert(Array,genoTest)*βhat
@@ -126,12 +126,12 @@ function wSNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combi
     βhat = Λi*X' * inv(X*Λi*X' + eye(nInd)) * y
 
     #not IDs, rows!
-    # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[201:end]]
+    # first 200 in G3 and G4 are sires gNoPInd[201:end]
+    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]]
     phenoTest = phenoData_G5[testRows,:];
     #not IDs, rows!
     # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[201:end]]
+    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
     genoTest = genoData_Combined[testRows,2:end];
     
     uHat = convert(Array,genoTest)*βhat
@@ -146,8 +146,8 @@ function PBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
 
     #not IDs, rows!
-    # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[201:end]]
+    # first 200 in G3 and G4 are sires gNoPInd[201:end]
+    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]]
     phenoTest = phenoData_G5[testRows,:];
 
     nTot = size(popPedigree,1)
@@ -274,6 +274,6 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,Z1,X,X1,W,W1,y,y1,Ai1
     ebvPred = ebv[testRows,2]
     size(testRows)
 
-    r_ssSNPBLUP = cor(ebvPred[201:end],phenoData_G5[Symbol("u$trait")])
+    r_ssSNPBLUP = cor(ebvPred[401:end],phenoData_G5[Symbol("u$trait")])
     return r_ssSNPBLUP
 end

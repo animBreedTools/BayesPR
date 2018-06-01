@@ -241,7 +241,7 @@ function prepDataSSBR(phenoData_G4::DataFrame,genoData_Combined::DataFrame,popPe
     return Z1, X, X1, W, W1, y, y1, Ai11, J, M, nTot, gInd, ngInd, gNoPInd 
 end
 
-function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varR,Z1,X,X1,W,W1,y,y1,Ai11,J,M,nTot,gInd,ngInd,gNoPInd)    
+function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W1,y,y1,Ai11,J,M,nTot,gInd,ngInd,gNoPInd)    
 
     n1 = length(ngInd)
     n2 = length(gInd)

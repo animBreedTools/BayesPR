@@ -37,12 +37,12 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
     out = runMCMC(model1,phenoRef,Pi=π,estimatePi=false,chain_length=nChain, methods=BayesX,output_samples_frequency=nThin,MCMC_marker_effects_file="MCMC_samples_$BayesX$(Int(π)).txt");
 
     #not IDs, rows!
-    # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[201:end]]
+    # first 200 is sires in G3 and G4 gNoPInd[401:end]
+    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]]
     phenoTest = phenoData_G5[testRows,:];
     #not IDs, rows!
     # first 200 is sires gNoPInd[201:end]
-    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[201:end]]
+    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
     genoTest = genoData_Combined[testRows,2:end];
 
     ebvBayes = convert(Array{Int64},genoTest)*out["Posterior mean of marker effects"]

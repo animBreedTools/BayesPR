@@ -17,7 +17,7 @@ for i in 1:n
 return(A[1:n, 1:n])
 end
 
-function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,BayesX::String,π::Float64,nChain::Int,nThin::Int,varR::Float64,varG::Float64)
+function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,BayesX::String,piValue::Float64,nChain::Int,nThin::Int,varR::Float64,varG::Float64)
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
@@ -34,7 +34,7 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
     model1 = build_model(model_equations,varR);
     add_markers(model1,genoRef,varG,separator=' ',header=true);
 
-    out = runMCMC(model1,phenoRef,Pi=π,estimatePi=false,chain_length=nChain, methods=BayesX,output_samples_frequency=nThin,MCMC_marker_effects_file="MCMC_samples_$BayesX$(Int(π)).txt");
+    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain, methods=BayesX,output_samples_frequency=nThin,MCMC_marker_effects_file="MCMC_samples_$BayesX$(Int(piValue)).txt");
 
     #not IDs, rows!
     # first 200 is sires in G3 and G4 gNoPInd[401:end]
@@ -51,8 +51,8 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
 
     varE_Bayes = mean(out["MCMC samples for residual variance"])
 
-    varSNP_Bayes = vcat(mean(convert(Array,readtable("MCMC_samples_$BayesX$(Int(π)).txt_variance.txt",header=false,separator=' ')),1)...)
-    removeMe = "MCMC_samples_$BayesX$(Int(π)).txt_variance.txt"
+    varSNP_Bayes = vcat(mean(convert(Array,readtable("MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt",header=false,separator=' ')),1)...)
+    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
     println("removeMe $removeMe removed")
     rm(removeMe)
     return r_Bayes, varE_Bayes, varSNP_Bayes

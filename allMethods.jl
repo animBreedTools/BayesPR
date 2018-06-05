@@ -52,7 +52,9 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
     varE_Bayes = mean(out["MCMC samples for residual variance"])
 
     varSNP_Bayes = vcat(mean(convert(Array,readtable("MCMC_samples_$BayesX$(Int(π)).txt_variance.txt",header=false,separator=' ')),1)...)
-    rm("MCMC_samples_$BayesX$(Int(π)).txt*")
+    removeMe = "MCMC_samples_$BayesX$(Int(π)).txt_variance.txt"
+    println("removeMe $removeMe removed")
+    rm(removeMe)
     return r_Bayes, varE_Bayes, varSNP_Bayes
 end
 

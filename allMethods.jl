@@ -267,9 +267,9 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     rhs = [X'y; W'y; Z11'y1];
 
     sol=lhs\rhs
-    
-    aHat  = J*sol[2] + M*sol[3:(length(sol)-n1)] #accuracy for genotypes(either true or imputed)
-    aHat[1:n1,:] += sol[(length(sol)-n1+1):end]  #this adds epsilon to non-genotyped individuals!! U*hat(epsilon)
+
+    aHat  = J*sol[2] + M*sol[3:(length(sol)-n1)]  #BV from genotypes (either true or imputed)
+    aHat[1:n1,:] += sol[(length(sol)-n1+1):end]   #this adds epsilon to ng individuals
     ebv = [[ngInd;gInd] aHat]
 
     testRows = [find(i -> i == j, ebv[:,1])[] for j in gNoPInd[401:end]];

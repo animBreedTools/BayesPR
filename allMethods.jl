@@ -273,10 +273,20 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     aHat[1:n1,:] += sol[(length(sol)-n1+1):end];
     ebv = [[ngInd;gInd] aHat]
 
-    testRows = [find(i -> i == j, ebv[:,1])[] for j in gNoPInd];
+    testRows = [find(i -> i == j, ebv[:,1])[] for j in gNoPInd[401:end]];
     ebvPred = ebv[testRows,2]
-    size(testRows)
+    println("number of gNoPInd: $size(testRows)")    
+    testPhenoRows = [find(i -> i == j, phenoData_G5[:ID]) for j in gNoPInd[401:end]];
+    ebvTrue = phenoData_G5[testPhenoRows,Symbol("u$trait")]
+    r_ssSNPBLUP = cor(ebvPred,ebvTrue)
+    
+#    noPnoGInd = setdiff(phenoData_G5[:ID],gNoPInd[401:end])
+#    testRows2 = [find(i -> i == j, ebv[:,1])[] for j in noPnoGInd];
+#    ebvPred2 = ebv[testRows2,2]
+#    println("number of noPnoGInd: $size(testRows2)")
 
-    r_ssSNPBLUP = cor(ebvPred[401:end],phenoData_G5[Symbol("u$trait")])
+#    println(cor(ebvPred[401:end],phenoData_G5[Symbol("u$trait")]))
+    
+#    r_ssSNPBLUP = cor(ebvPred[401:end],phenoData_G5[Symbol("u$trait")])
     return r_ssSNPBLUP
 end

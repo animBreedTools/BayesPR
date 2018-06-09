@@ -275,7 +275,7 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
 
     testRows = [find(i -> i == j, ebv[:,1])[] for j in gNoPInd[401:end]];
     ebvPred = ebv[testRows,2]
-    println("number of gNoPInd: $(size(testRows))")    
+    println("number of gNoPInd: $(length(testRows))")    
     testPhenoRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]];
     ebvTrue = phenoData_G5[testPhenoRows,Symbol("u$trait")]
     r_ssSNPBLUP = cor(ebvPred,ebvTrue)

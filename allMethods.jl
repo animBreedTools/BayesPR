@@ -278,7 +278,6 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     println("number of gNoPInd: $(length(testRows))")    
     testPhenoRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]];
     ebvTrue = phenoData_G5[testPhenoRows,Symbol("u$trait")]
-    r_ssSNPBLUP = cor(ebvPred,ebvTrue)
     
     noPnoGInd = setdiff(phenoData_G5[:ID],gNoPInd[401:end])
     testRows2 = [find(i -> i == j, ebv[:,1])[] for j in noPnoGInd];
@@ -286,10 +285,7 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     println("number of noPnoGInd: $(length(testRows2))")    
     testPhenoRows2 = [find(i -> i == j, phenoData_G5[:ID])[] for j in noPnoGInd];
     ebvTrue2 = phenoData_G5[testPhenoRows2,Symbol("u$trait")]
-    println(cor(ebvPred2,ebvTrue2))
-
-#    println(cor(ebvPred[401:end],phenoData_G5[Symbol("u$trait")]))
     
-#    r_ssSNPBLUP = cor(ebvPred[401:end],phenoData_G5[Symbol("u$trait")])
+    r_ssSNPBLUP = [cor(ebvPred,ebvTrue) cor(ebvPred2,ebvTrue2)]
     return r_ssSNPBLUP
 end

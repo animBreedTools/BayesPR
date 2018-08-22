@@ -288,3 +288,69 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     r_ssSNPBLUP = [cor(ebvPred,ebvTrue) cor(ebvPred2,ebvTrue2)]
     return r_ssSNPBLUP
 end
+
+function mtJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,nTrait::Int,BayesX::String,piValue,nChain::Int,nThin::Int,varR,varG)
+    genoData_Combined[:ID]  = "ind".*string.(genoData_Combined[:ID])
+    phenoData_G4[:ID] = "ind".*string.(phenoData_G4[:ID])
+    phenoData_G5[:ID] = "ind".*string.(phenoData_G5[:ID])
+
+    gInd      = genoData_Combined[:ID]
+    gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
+    gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
+
+    #not IDs, rows!
+    refRows = [find(i -> i == j, phenoData_G4[:ID])[] for j in gpInd]
+    phenoRef = phenoData_G4[refRows,:];
+
+    #not IDs, rows!
+    refRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gpInd]
+    genoRef = genoData_Combined[refRows,:]; #first one is ID
+
+    writecsv("refGeno",convert(Array,genoRef))
+
+    model_equations = "pheno1 = intercept
+                       pheno2 = intercept";
+    model1 = build_model(model_equations,varR);
+    add_markers(model1,"refGeno",varG,separator=',',header=false);
+
+    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain, methods=BayesX,output_samples_frequency=nThin);
+
+    #not IDs, rows!
+    # first 200 is sires in G3 and G4 gNoPInd[401:end]
+    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]]
+    phenoTest = phenoData_G5[testRows,:];
+    #not IDs, rows!
+    # first 200 is sires gNoPInd[201:end]
+    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
+    genoTest = genoData_Combined[testRows,2:end];
+
+    ebvBayes = convert(Array{Int64},genoTest)*hcat(out["Posterior mean of marker effects"]...)
+
+    println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))))
+    r_Bayes =  diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]])))
+
+    varE_Bayes = out["Posterior mean of residual variance"]
+    
+#    coVarSNP_Bayes = Array{Any}(0, 4)
+    
+    if BayesX=="BayesB"
+        varData = CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false)
+        var1    = varData[collect(1:2:size(varData,1)),1]
+        var2    = varData[collect(2:2:size(varData,1)),2]
+        covar12 = varData[collect(2:2:size(varData,1)),1]
+        println(size(genoTest,2))
+        meanVar1 = mean(reshape(var1,size(genoTest,2),Int(nChain/nThin)),2)
+        meanVar2 = mean(reshape(var2,size(genoTest,2),Int(nChain/nThin)),2)
+        meanCoVar12 = mean(reshape(covar12,size(genoTest,2),Int(nChain/nThin)),2)
+#        coVarSNP_Bayes = vcat(coVarSNP_Bayes,[meanVar1 meanCoVar12 meanCoVar12 meanVar2])
+        coVarSNP_Bayes = [meanVar1 meanCoVar12 meanCoVar12 meanVar2]
+    elseif BayesX=="BayesC"
+        varData = convert(Array,CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false))
+#        coVarSNP_Bayes = vcat(coVarSNP_Bayes,mean(varData,1))
+        coVarSNP_Bayes = mean(varData,1)
+    end
+#    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
+#    println("removeMe $removeMe removed")
+#    rm(removeMe)
+    return r_Bayes, varE_Bayes , coVarSNP_Bayes
+end

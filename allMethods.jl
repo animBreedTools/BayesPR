@@ -289,7 +289,7 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     return r_ssSNPBLUP
 end
 
-function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All::DataFrame,nTrait::Int,BayesX::String,piValue,nChain::Int,nThin::Int,varR,varG)
+function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All::DataFrame,nTrait::Int,BayesX::String,piValue,nChain::Int,nBurnin::Int,nThin::Int,varR,varG)
     #the changes (use of copy, and changes in the keywords of function) is because JWAS requires string. This changes the original data file if I use old versions of functions 
     phenoData_G4 = copy(phenoDataInRef)
     phenoData_G5 = copy(phenoDataInVal)
@@ -318,7 +318,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     model1 = build_model(model_equations,varR);
     add_markers(model1,"refGeno",varG,separator=',',header=false);
 
-    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain, methods=BayesX,output_samples_frequency=nThin);
+    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain,burnin=nBurnin,methods=BayesX,output_samples_frequency=nThin);
 
     #not IDs, rows!
     # first 200 is sires in G3 and G4 gNoPInd[401:end]
@@ -344,9 +344,9 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
         var2    = varData[collect(2:2:size(varData,1)),2]
         covar12 = varData[collect(2:2:size(varData,1)),1]
         println(size(genoTest,2))
-        meanVar1 = mean(reshape(var1,size(genoTest,2),Int(nChain/nThin)),2)
-        meanVar2 = mean(reshape(var2,size(genoTest,2),Int(nChain/nThin)),2)
-        meanCoVar12 = mean(reshape(covar12,size(genoTest,2),Int(nChain/nThin)),2)
+        meanVar1 = mean(reshape(var1,size(genoTest,2),Int((nChain-nBurnin)/nThin)),2)
+        meanVar2 = mean(reshape(var2,size(genoTest,2),Int((nChain-nBurnin)/nThin)),2)
+        meanCoVar12 = mean(reshape(covar12,size(genoTest,2),Int((nChain-nBurnin)/nThin)),2)
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,[meanVar1 meanCoVar12 meanCoVar12 meanVar2])
         coVarSNP_Bayes = [meanVar1 meanCoVar12 meanCoVar12 meanVar2]
     elseif BayesX=="BayesC"

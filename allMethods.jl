@@ -354,3 +354,92 @@ function mtJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
 #    rm(removeMe)
     return r_Bayes, varE_Bayes , coVarSNP_Bayes
 end
+
+function prepDataSSBR_mt(phenoData_G4::DataFrame,genoData_Combined::DataFrame,popPedigree::Array,nTraits::Int)
+    nTot = size(popPedigree,1)
+    allInd    = collect(1:nTot)
+    gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID]);
+    gInd      = genoData_Combined[:ID]
+    ngInd     = setdiff(allInd,gInd)
+    gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
+    pNoGInd   = setdiff(phenoData_G4[:ID],gInd)
+
+    n1 = length(ngInd)
+    n2 = length(gInd)
+    
+    popPedigree = popPedigree[[ngInd;gInd],[ngInd;gInd]]
+    popPedigree[1:10,:]
+
+    Ai = inv(popPedigree)
+
+    Ai11 = Ai[1:n1,1:n1];
+    Ai12 = Ai[1:n1,(n1+1):nTot];
+    print(size(Ai11)," ", size(Ai12))
+
+    n2, nCols = size(genoData_Combined)
+    nMarkers  = nCols - 1
+    M2 = convert(Array{Float32},genoData_Combined[:,2:end])
+    print(size(M2))
+
+    M1 = -Ai11\(Ai12*M2)
+    M  = [M1;M2]
+
+    y_2Trait = Array{Float64}(undef,0,1)
+    y1_2Trait = Array{Float64}(undef,0,1)
+    Z11Z11 = Array{Float64}(undef,0,0)
+    Z2Z2 = Array{Float64}(undef,0,0)
+    XX   = Array{Float64}(undef,0,0)
+    X1X1 = Array{Float64}(undef,0,0)
+    WW   = Array{Float64}(undef,0,0)
+    W1W1 = Array{Float64}(undef,0,0)
+    JJ   = Array{Float64}(undef,0,0)
+
+    for trait in 1:nTraits
+    yTemp   = fill(-9999.0,nTot)
+    yTemp[phenoData_G4[:ID,]] = phenoData_G4[Symbol("pheno$trait"),]
+    y = yTemp[[ngInd;gInd]]
+    y1Temp = y[1:n1]
+    y2Temp = y[(n1+1):end]
+    y1 = y1Temp[y1Temp.!=-9999.0]
+    y2 = y2Temp[y2Temp.!=-9999.0]
+    y  = [y1;y2]
+    
+    Z2 = eye(nTot)
+    Z2[:,gNoPInd] .= 0
+    Z2 = Z2[gpInd,[ngInd;gInd]]
+
+    Z1 = full(Diagonal((y1Temp.!=-9999.0)*1))
+    Z1 = Z1[find(sum(Z1,2).!=0),:]
+    Z1 = [Z1 zeros(length(pNoGInd), length(gInd))]
+    Z11 = Z1[:,1:n1]
+            
+    n1 = size(M1,1)
+    n2 = size(M2,1)
+    J2 = -ones(n2,1)
+    J1 = -Ai11\(Ai12*J2)
+    J = [J1;J2]
+
+    X  = [hcat(ones(n1), J1);
+          hcat(ones(n2), J2)]
+    X1 = Z1*X
+    X2 = Z2*X
+    X = [X1;X2]
+
+    W1 = Z1*M
+    W2 = Z2*M
+    W  = [W1;W2]
+   
+    y_2Trait = vcat(y_2Trait,y)
+    y1_2Trait = vcat(y1_2Trait,y1)
+    Z11Z11 = cat([1,2],Z11Z11,Z11)
+    Z2Z2 = cat([1,2],Z2Z2,Z2)
+    XX   = cat([1,2],XX,X)
+    X1X1 = cat([1,2],X1X1,X1)
+    WW   = cat([1,2],WW,W)
+    W1W1 = cat([1,2],W1W1,W1)
+    JJ   = cat([1,2],JJ,J)
+    end
+    MM   = cat([1,2],M,M)
+    return Z11Z11, XX, X1X1, WW, W1W1, y_2Trait, y1_2Trait, Ai11, JJ, MM, nTot, gInd, ngInd, gNoPInd 
+end
+

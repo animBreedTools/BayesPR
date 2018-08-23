@@ -289,7 +289,12 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
     return r_ssSNPBLUP
 end
 
-function mtJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,nTrait::Int,BayesX::String,piValue,nChain::Int,nThin::Int,varR,varG)
+function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All::DataFrame,nTrait::Int,BayesX::String,piValue,nChain::Int,nThin::Int,varR,varG)
+    #the changes (use of copy, and changes in the keywords of function) is because JWAS requires string. This changes the original data file if I use old versions of functions 
+    phenoData_G4 = copy(phenoDataInRef)
+    phenoData_G5 = copy(phenoDataInVal)
+    genoData_Combined = copy(genoData_All)
+    
     genoData_Combined[:ID]  = "ind".*string.(genoData_Combined[:ID])
     phenoData_G4[:ID] = "ind".*string.(phenoData_G4[:ID])
     phenoData_G5[:ID] = "ind".*string.(phenoData_G5[:ID])
@@ -441,5 +446,68 @@ function prepDataSSBR_mt(phenoData_G4::DataFrame,genoData_Combined::DataFrame,po
     end
     MM   = cat([1,2],M,M)
     return Z11Z11, XX, X1X1, WW, W1W1, y_2Trait, y1_2Trait, Ai11, JJ, MM, nTot, gInd, ngInd, gNoPInd 
+end
+
+function mmeSSBR_mt(phenoData_G5::DataFrame,nTraits::Int,coVarSNP,varG,varR,Z11Z11,XX,X1X1,WW,W1W1,y_2Trait,y1_2Trait,Ai11,JJ,MM,nTot,gInd,ngInd,gNoPInd)    
+
+    n1 = length(ngInd)
+    n2 = length(gInd)
+    n3 = Int(size(MM,2)/nTraits)
+    
+    if size(coVarSNP,1)==1
+        coVarSNP = vcat(fill(coVarSNP,n3)...)
+        else
+        coVarSNP = coVarSNP
+    end        
+
+    B = full([Diagonal(coVarSNP[:,1]) Diagonal(coVarSNP[:,2]);
+    Diagonal(coVarSNP[:,3]) Diagonal(coVarSNP[:,4])])
+    
+    invR = inv(kron(varR,eye(Int(length(y_2Trait)/2)))) #assumes same number of pheno for each trait
+
+    #invR1 = inv(kron(varR,eye(Int(length(y1_2Trait)/2)))) #assumes same number of pheno per trait
+    
+    lim1 = 1:Int(length(y1_2Trait)/2) #1:3000
+    lim2 = Int(size(y_2Trait,1)/2)+1:Int(size(y_2Trait,1)/2)+Int(length(y1_2Trait)/2) #4001:7000
+    invR1 = invR[vcat(lim1,lim2),vcat(lim1,lim2)] 
+    
+    C11 = XX'*invR*XX
+    C12 = XX'*invR*WW
+    C13 = X1X1'*invR1*Z11Z11
+    C21 = WW'*invR*XX
+    C22 = WW'*invR*WW + inv(B)
+    C23 = W1W1'*invR1*Z11Z11
+    C31 = Z11Z11'*invR1*X1X1
+    C32 = Z11Z11'*invR1*W1W1
+    C33 = Z11Z11'*invR1*Z11Z11+kron(inv(varG),Ai11);
+
+    lhs = [C11 C12 C13;
+           C21 C22 C23;
+           C31 C32 C33];
+
+    rhs = [XX'*invR*y_2Trait ; WW'*invR*y_2Trait ; Z11Z11'*invR1*y1_2Trait];
+
+    sol = lhs\rhs
+    
+    aHat = JJ*sol[[2,4]] + MM*sol[5:(length(sol)-2*n1)]
+    aHat = reshape(aHat,nTot,2)
+    aHat[1:n1,:] += reshape(sol[(length(sol)-(2*n1)+1):end],size(ngInd,1),2)
+    ebv = [[ngInd;gInd] aHat]
+    
+    testRows = [find(i -> i == j, ebv[:,1])[] for j in gNoPInd[401:end]];
+    ebvPred = ebv[testRows,2:3]
+    println("number of gNoPInd: $(length(testRows))")    
+    testPhenoRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]];
+    ebvTrue = phenoData_G5[testPhenoRows,[:u1,:u2]]
+
+    noPnoGInd = setdiff(phenoData_G5[:ID],gNoPInd[401:end])
+    testRows2 = [find(i -> i == j, ebv[:,1])[] for j in noPnoGInd];
+    ebvPred2 = ebv[testRows2,2:3]
+    println("number of noPnoGInd: $(length(testRows2))")    
+    testPhenoRows2 = [find(i -> i == j, phenoData_G5[:ID])[] for j in noPnoGInd];
+    ebvTrue2 = phenoData_G5[testPhenoRows2,[:u1,:u2]]
+    
+    r_ssSNPBLUP_mt = [diag(cor(ebvPred,convert(Array,ebvTrue))) diag(cor(ebvPred2,convert(Array,ebvTrue2)))]
+    return r_ssSNPBLUP_mt
 end
 

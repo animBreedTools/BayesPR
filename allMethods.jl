@@ -51,7 +51,7 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
 
     varE_Bayes = mean(out["MCMC samples for residual variance"])
 
-    varSNP_Bayes = vcat(mean(convert(Array,readtable("MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt",header=false,separator=' ')),1)...)
+    varSNP_Bayes = vcat(mean(convert(Array,readtable("MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt",header=false,separator=' ')),dims=1)...)
     removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
     println("removeMe $removeMe removed")
     rm(removeMe)
@@ -74,7 +74,7 @@ function SNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combin
     nInd = size(genoRef,1)
 
     X    = convert(Array{Float64},genoRef)
-    p    = mean(X,1)./2.0
+    p    = mean(X,dims=1)./2.0
     X  .-= ones(Float64,nInd)*2p
 
     y    = convert(Array,phenoRef[Symbol("pheno$trait")])
@@ -118,7 +118,7 @@ function wSNPBLUP(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combi
     nInd = size(genoRef,1)
 
     X    = convert(Array{Float64},genoRef)
-    p    = mean(X,1)./2.0
+    p    = mean(X,dims=1)./2.0
     X  .-= ones(Float64,nInd)*2p
 
     y    = convert(Array,phenoRef[Symbol("pheno$trait")])
@@ -344,15 +344,15 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
         var2    = varData[collect(2:2:size(varData,1)),2]
         covar12 = varData[collect(2:2:size(varData,1)),1]
         println(size(genoTest,2))
-        meanVar1 = mean(reshape(var1,size(genoTest,2),Int((nChain-nBurnin)/nThin)),2)
-        meanVar2 = mean(reshape(var2,size(genoTest,2),Int((nChain-nBurnin)/nThin)),2)
-        meanCoVar12 = mean(reshape(covar12,size(genoTest,2),Int((nChain-nBurnin)/nThin)),2)
+        meanVar1 = mean(reshape(var1,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
+        meanVar2 = mean(reshape(var2,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
+        meanCoVar12 = mean(reshape(covar12,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,[meanVar1 meanCoVar12 meanCoVar12 meanVar2])
         coVarSNP_Bayes = [meanVar1 meanCoVar12 meanCoVar12 meanVar2]
     elseif BayesX=="BayesC"
         varData = convert(Array,CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false))
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,mean(varData,1))
-        coVarSNP_Bayes = mean(varData,1)
+        coVarSNP_Bayes = mean(varData,dims=1)
     end
 #    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
 #    println("removeMe $removeMe removed")

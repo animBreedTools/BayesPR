@@ -340,9 +340,9 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     
     if BayesX=="BayesB"
         varData = CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false)
-        var1    = varData[collect(1:2:size(varData,1)),1]
-        var2    = varData[collect(2:2:size(varData,1)),2]
-        covar12 = varData[collect(2:2:size(varData,1)),1]
+        var1    = varData[collect(1:2:size(varData,1)),1][nBurnin+1:end] #
+        var2    = varData[collect(2:2:size(varData,1)),2][nBurnin+1:end] # Hao's JWAS prints out everything.
+        covar12 = varData[collect(2:2:size(varData,1)),1][nBurnin+1:end] # Below (nChain-nBurnin)/nThin is correct even he fixes this
         println(size(genoTest,2))
         meanVar1 = mean(reshape(var1,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
         meanVar2 = mean(reshape(var2,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)

@@ -17,7 +17,16 @@ for i in 1:n
 return(A[1:n, 1:n])
 end
 
-function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combined::DataFrame,trait::Int,BayesX::String,piValue::Float64,nChain::Int,nThin::Int,varR::Float64,varG::Float64)
+function stJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All::DataFrame,trait::Int,BayesX::String,piValue::Float64,nChain::Int,nBurnin::Int,nThin::Int,varR::Float64,varG::Float64)
+    #the changes (use of copy, and changes in the keywords of function) is because JWAS requires string. This changes the original data file if I use old versions of functions 
+    phenoData_G4 = copy(phenoDataInRef)
+    phenoData_G5 = copy(phenoDataInVal)
+    genoData_Combined = copy(genoData_All)
+    
+    genoData_Combined[:ID]  = "ind".*string.(genoData_Combined[:ID])
+    phenoData_G4[:ID] = "ind".*string.(phenoData_G4[:ID])
+    phenoData_G5[:ID] = "ind".*string.(phenoData_G5[:ID])
+    
     gInd      = genoData_Combined[:ID]
     gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
     gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
@@ -29,12 +38,14 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
     #not IDs, rows!
     refRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gpInd]
     genoRef = genoData_Combined[refRows,2:end]; #first one is ID
+    
+    writecsv("refGeno",convert(Array,genoRef))
 
     model_equations = "pheno$trait = intercept" ;
     model1 = build_model(model_equations,varR);
     add_markers(model1,genoRef,varG,separator=' ',header=true);
 
-    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain, methods=BayesX,output_samples_frequency=nThin,MCMC_marker_effects_file="MCMC_samples_$BayesX$(Int(piValue)).txt");
+    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain,burnin=nBurnin,methods=BayesX,output_samples_frequency=nThin,MCMC_marker_effects_file="MCMC_samples_$BayesX$(Int(piValue)).txt");
 
     #not IDs, rows!
     # first 200 is sires in G3 and G4 gNoPInd[401:end]
@@ -46,6 +57,9 @@ function stJWAS(phenoData_G4::DataFrame,phenoData_G5::DataFrame,genoData_Combine
     genoTest = genoData_Combined[testRows,2:end];
 
     ebvBayes = convert(Array{Int64},genoTest)*out["Posterior mean of marker effects"]
+    #snpEff   = mean(convert(Array,readtable("MCMC_samples_marker_effects_pheno1.txt",separator=',',header=false))[Int(nBurnin/nThin)+1:end,:],dims=1)'
+    #convert(Array{Int64},genoTest)*
+    
     println("TRT $trait r in Tst ", cor(ebvBayes,convert(Array,phenoTest[Symbol("u$trait")])))
     r_Bayes = cor(ebvBayes,convert(Array,phenoTest[Symbol("u$trait")]))
 

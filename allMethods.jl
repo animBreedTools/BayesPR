@@ -331,7 +331,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
 
     #ebvBayes = convert(Array{Int64},genoTest)*hcat(out["Posterior mean of marker effects"]...)
     snpEff   = [mean(convert(Array,readtable("MCMC_samples_marker_effects_pheno1.txt",separator=',',header=false))[Int(nBurnin/nThin)+1:end,:],dims=1)' mean(convert(Array,readtable("MCMC_samples_marker_effects_pheno2.txt",separator=',',header=false))[Int(nBurnin/nThin)+1:end,:],dims=1)']
-    ebvBayes = convert(Array{Int64},genoTest)*hcat(out["Posterior mean of marker effects"])
+    ebvBayes = convert(Array{Int64},genoTest)*snpEff
 
     println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))))
     r_Bayes =  diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]])))

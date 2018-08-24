@@ -37,15 +37,16 @@ function stJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
 
     #not IDs, rows!
     refRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gpInd]
-    genoRef = genoData_Combined[refRows,2:end]; #first one is ID
+    genoRef = genoData_Combined[refRows,:]; #first one is ID
     
     writecsv("refGeno",convert(Array,genoRef))
 
     model_equations = "pheno$trait = intercept" ;
     model1 = build_model(model_equations,varR);
-    add_markers(model1,genoRef,varG,separator=' ',header=true);
+    add_markers(model1,"refGeno",varG,separator=',',header=false);
 
-    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain,burnin=nBurnin,methods=BayesX,output_samples_frequency=nThin,MCMC_marker_effects_file="MCMC_samples_$BayesX$(Int(piValue)).txt");
+    out = runMCMC(model1,phenoRef,Pi=piValue,estimatePi=false,chain_length=nChain,burnin=nBurnin,methods=BayesX,output_samples_frequency=nThin,output_file="MCMC_samples_$BayesX$(Int(piValue)).txt");
+    #MCMC_marker_effects_output_file was changes to output_file
 
     #not IDs, rows!
     # first 200 is sires in G3 and G4 gNoPInd[401:end]
@@ -56,17 +57,21 @@ function stJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
     genoTest = genoData_Combined[testRows,2:end];
 
-    ebvBayes = convert(Array{Int64},genoTest)*out["Posterior mean of marker effects"]
-    #snpEff   = mean(convert(Array,readtable("MCMC_samples_marker_effects_pheno1.txt",separator=',',header=false))[Int(nBurnin/nThin)+1:end,:],dims=1)'
-    #convert(Array{Int64},genoTest)*
+    #ebvBayes = convert(Array{Int64},genoTest)*out["Posterior mean of marker effects"]
+    snpEff   = convert(Array,readtable("MCMC_samples_$BayesX$(Int(piValue)).txt_marker_effects_pheno$trait.txt",separator=',',header=false))
+    println("size of SNPEFF: $(size(snpEff))")
+    snpEff   = mean(snpEff,dims=1)'
+    ebvBayes = convert(Array{Int64},genoTest)*snpEff
     
     println("TRT $trait r in Tst ", cor(ebvBayes,convert(Array,phenoTest[Symbol("u$trait")])))
     r_Bayes = cor(ebvBayes,convert(Array,phenoTest[Symbol("u$trait")]))
 
-    varE_Bayes = mean(out["MCMC samples for residual variance"])
-
-    varSNP_Bayes = vcat(mean(convert(Array,readtable("MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt",header=false,separator=' ')),dims=1)...)
-    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
+    varE_Bayes = out["Posterior mean of residual variance"]
+    
+    varSNP_Bayes = convert(Array,readtable("MCMC_samples_$BayesX$(Int(piValue)).txt_marker_effects_variances.txt",header=false,separator=','))
+    println("size of SNPEFF: $(size(varSNP_Bayes))")
+    varSNP_Bayes = vcat(mean(varSNP_Bayes,dims=1)...)
+    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_marker_effects_variances.txt"
     println("removeMe $removeMe removed")
     rm(removeMe)
     return r_Bayes, varE_Bayes, varSNP_Bayes
@@ -530,4 +535,5 @@ function mmeSSBR_mt(phenoData_G5::DataFrame,nTraits::Int,coVarSNP,varG,varR,Z11Z
     r_ssSNPBLUP_mt = [diag(cor(ebvPred,convert(Array,ebvTrue))) diag(cor(ebvPred2,convert(Array,ebvTrue2)))]
     return r_ssSNPBLUP_mt
 end
+
 

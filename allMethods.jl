@@ -340,18 +340,21 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     
     if BayesX=="BayesB"
         varData = CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false)
-        var1    = varData[collect(1:2:size(varData,1)),1][nBurnin+1:end] #
-        println("size of Var1 $(size(genoTest,2))")
-        var2    = varData[collect(2:2:size(varData,1)),2][nBurnin+1:end] # Hao's JWAS prints out everything.
-        covar12 = varData[collect(2:2:size(varData,1)),1][nBurnin+1:end] # Below (nChain-nBurnin)/nThin is correct even he fixes this
-        println(size(genoTest,2))
-        meanVar1 = mean(reshape(var1,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
-        meanVar2 = mean(reshape(var2,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
-        meanCoVar12 = mean(reshape(covar12,size(genoTest,2),Int((nChain-nBurnin)/nThin)),dims=2)
+        var1    = varData[collect(1:2:size(varData,1)),1]
+        var2    = varData[collect(2:2:size(varData,1)),2]
+        coVar12 = varData[collect(2:2:size(varData,1)),1]
+        println("size of var1 $(size(var1)")
+        var1    = reshape(var1,size(genoTest,2),Int(nChain/nThin))[nBurnin+1:end,:] #
+        var2    = reshape(var2,size(genoTest,2),Int(nChain/nThin))[nBurnin+1:end,:]# Hao's JWAS prints out everything.
+        coVar12 = reshape(covar12,size(genoTest,2),Int(nChain/nThin))[nBurnin+1:end,:]
+        println("size of var1 $(size(var1)")
+        meanVar1    = mean(var1,dims=2)
+        meanVar2    = mean(var2,dims=2)
+        meanCoVar12 = mean(coVar12,dims=2)
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,[meanVar1 meanCoVar12 meanCoVar12 meanVar2])
         coVarSNP_Bayes = [meanVar1 meanCoVar12 meanCoVar12 meanVar2]
     elseif BayesX=="BayesC"
-        varData = convert(Array,CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false))[nBurnin+1:end,:] # Hao's JWAS prints out everything.
+        varData = convert(Array,CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false))
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,mean(varData,1))
         coVarSNP_Bayes = mean(varData,dims=1)
     end

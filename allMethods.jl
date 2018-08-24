@@ -347,7 +347,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
         var1    = reshape(var1,size(genoTest,2),Int(nChain/nThin))[nBurnin+1:end,:] #
         var2    = reshape(var2,size(genoTest,2),Int(nChain/nThin))[nBurnin+1:end,:]# Hao's JWAS prints out everything.
         coVar12 = reshape(covar12,size(genoTest,2),Int(nChain/nThin))[nBurnin+1:end,:]
-        println("size of var1 $(size(var1)")
+        println("size of var1 $(size(var1))")
         meanVar1    = mean(var1,dims=2)
         meanVar2    = mean(var2,dims=2)
         meanCoVar12 = mean(coVar12,dims=2)

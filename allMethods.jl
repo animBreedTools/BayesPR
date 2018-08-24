@@ -329,7 +329,9 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
     genoTest = genoData_Combined[testRows,2:end];
 
-    ebvBayes = convert(Array{Int64},genoTest)*hcat(out["Posterior mean of marker effects"]...)
+    #ebvBayes = convert(Array{Int64},genoTest)*hcat(out["Posterior mean of marker effects"]...)
+    snpEff   = mean(convert(Array,readtable("MCMC_samples_marker_effects_pheno1.txt",separator=',',header=false))[Int(nBurnin/nThin)+1:end,:],dims=1)' mean(convert(Array,readtable("MCMC_samples_marker_effects_pheno2.txt",separator=',',header=false))[Int(nBurnin/nThin)+1:end,:],dims=1)'
+    ebvBayes = convert(Array{Int64},genoTest)*hcat(out["Posterior mean of marker effects"])
 
     println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))))
     r_Bayes =  diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]])))
@@ -361,7 +363,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
 #    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
 #    println("removeMe $removeMe removed")
 #    rm(removeMe)
-    return r_Bayes, varE_Bayes , coVarSNP_Bayes, hcat(out["Posterior mean of marker effects"]...) ####remove this
+    return r_Bayes, varE_Bayes , coVarSNP_Bayes
 end
 
 function prepDataSSBR_mt(phenoData_G4::DataFrame,genoData_Combined::DataFrame,popPedigree::Array,nTraits::Int)

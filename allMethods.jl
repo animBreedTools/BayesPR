@@ -344,9 +344,9 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
         var2    = varData[collect(2:2:size(varData,1)),2]
         coVar12 = varData[collect(2:2:size(varData,1)),1]
         println("size of var1 $(size(var1))")
-        var1    = reshape(var1,size(genoTest,2),Int(nChain/nThin))[:,Int(nBurnin/nThin)+1:end] #
-        var2    = reshape(var2,size(genoTest,2),Int(nChain/nThin))[:,Int(nBurnin/nThin)+1:end]# Hao's JWAS prints out everything.
-        coVar12 = reshape(coVar12,size(genoTest,2),Int(nChain/nThin))[:,Int(nBurnin/nThin)+1:end]
+        var1    = reshape(var1,size(genoTest,2),Int(nChain/nThin))[:,Int(nBurnin/nThin)+1:end]   ##
+        var2    = reshape(var2,size(genoTest,2),Int(nChain/nThin))[:,Int(nBurnin/nThin)+1:end]   ## Hao's JWAS prints out everything.
+        coVar12 = reshape(coVar12,size(genoTest,2),Int(nChain/nThin))[:,Int(nBurnin/nThin)+1:end]## 
         println("size of var1 $(size(var1))")
         meanVar1    = mean(var1,dims=2)
         meanVar2    = mean(var2,dims=2)
@@ -354,7 +354,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,[meanVar1 meanCoVar12 meanCoVar12 meanVar2])
         coVarSNP_Bayes = [meanVar1 meanCoVar12 meanCoVar12 meanVar2]
     elseif BayesX=="BayesC"
-        varData = convert(Array,CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false))
+        varData = convert(Array,CSV.read("MCMC_samples_marker_effects_variances.txt",delim=',',header=false))[Int(nBurnin/nThin)+1:end,:]   ## Hao's JWAS prints out everything.
 #        coVarSNP_Bayes = vcat(coVarSNP_Bayes,mean(varData,1))
         coVarSNP_Bayes = mean(varData,dims=1)
     end

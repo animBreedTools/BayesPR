@@ -79,7 +79,7 @@ function simPheno(popGeno,h2_1,h2_2,meanMaf,dist,parms,q1QTLs,q2QTLs,q12QTLs)
     infoSimQTL[:,3:end] = 0
     infoSimQTL[QTLs[1:(q1QTLs+q12QTLs)]-1,3] = 1
     infoSimQTL[QTLs[((q1QTLs+q12QTLs)+1):end]-1,4]   = 1
-    infoSimQTL[QTLs[1:end]-1,5] = alpha'
+    infoSimQTL[QTLs[1:end]-1,5] = alpha #may need transpose
     infoSimQTL[:,6] .= vcat(p...)
     println(infoSimQTL)
     writecsv("infoSimQTL",convert(Array,infoSimQTL))

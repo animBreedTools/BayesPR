@@ -355,6 +355,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))))
     r_Bayes =  diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]])))
 
+    varUhat = cov(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))
     varE_Bayes = out["Posterior mean of residual variance"]
     
 #    coVarSNP_Bayes = Array{Any}(0, 4)
@@ -382,7 +383,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
 #    removeMe = "MCMC_samples_$BayesX$(Int(piValue)).txt_variance.txt"
 #    println("removeMe $removeMe removed")
 #    rm(removeMe)
-    return r_Bayes, varE_Bayes , coVarSNP_Bayes
+    return r_Bayes, varUhat, varE_Bayes, coVarSNP_Bayes
 end
 
 function prepDataSSBR_mt(phenoData_G4::DataFrame,genoData_Combined::DataFrame,popPedigree::Array,nTraits::Int)

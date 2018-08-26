@@ -355,7 +355,7 @@ function mtJWAS(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All
     println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))))
     r_Bayes =  diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]])))
 
-    varUhat = cov(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))
+    varUhat = cov(ebvBayes)
     varE_Bayes = out["Posterior mean of residual variance"]
     
 #    coVarSNP_Bayes = Array{Any}(0, 4)

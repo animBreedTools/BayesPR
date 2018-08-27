@@ -14,7 +14,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     println("y is this size", size(y))
     nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
     fileControlSt(fixedRegSize)
-    p           = mean(X,dims=1)./2.0
+    p           = mean(X,1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     if varGenotypic==0.0
         varBeta      = fill(0.0005, nRegions)

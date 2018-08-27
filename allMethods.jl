@@ -285,7 +285,8 @@ function mmeSSBR(phenoData_G5::DataFrame,trait::Int,varSNP,varG,varR,Z1,X,X1,W,W
            Z11'X1  Z11'W1          Z11'Z11+Ai11*λ1]
     rhs = [X'y; W'y; Z11'y1];
 
-    sol=lhs\rhs
+    sol = gauss_seidel(lhs, rhs)
+    #sol=lhs\rhs
 
     aHat  = J*sol[2] + M*sol[3:(length(sol)-n1)]  #BV from genotypes (either true or imputed)
     aHat[1:n1,:] += sol[(length(sol)-n1+1):end]   #this adds epsilon to ng individuals
@@ -513,7 +514,8 @@ function mmeSSBR_mt(phenoData_G5::DataFrame,nTraits::Int,coVarSNP,varG,varR,Z11Z
 
     rhs = [XX'*invR*y_2Trait ; WW'*invR*y_2Trait ; Z11Z11'*invR1*y1_2Trait];
 
-    sol = lhs\rhs
+    sol = gauss_seidel(lhs, rhs)
+    #sol = lhs\rhs
     
     aHat = JJ*sol[[2,4]] + MM*sol[5:(length(sol)-2*n1)]
     aHat = reshape(aHat,nTot,2)

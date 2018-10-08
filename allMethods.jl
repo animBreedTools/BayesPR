@@ -650,8 +650,8 @@ function runSTBayesPR(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoDa
 
     ebvBayes = convert(Array{Int64},genoTest)*meanBeta
     
-    println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[Symbol("pheno$trait")]))))
-    r_Bayes =  cor(ebvBayes,convert(Array,phenoTest[Symbol("pheno$trait")]))
+    println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[Symbol("u$trait")]))))
+    r_Bayes =  cor(ebvBayes,convert(Array,phenoTest[Symbol("u$trait")]))
 
     varUhat = cov(ebvBayes)
 

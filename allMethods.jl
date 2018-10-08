@@ -539,4 +539,78 @@ function mmeSSBR_mt(phenoData_G5::DataFrame,nTraits::Int,coVarSNP,varG,varR,Z11Z
     return r_ssSNPBLUP_mt
 end
 
+function runMTBayesPR(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoData_All::DataFrame,myMap,nChr::Int,rS::Int,nChain::Int,nBurnin::Int,nThin::Int,varR,varG)
+    phenoData_G4 = copy(phenoDataInRef)
+    phenoData_G5 = copy(phenoDataInVal)
+    genoData_Combined = copy(genoData_All)
+    
+    genoData_Combined[:ID]  = "ind".*string.(genoData_Combined[:ID])
+    phenoData_G4[:ID] = "ind".*string.(phenoData_G4[:ID])
+    phenoData_G5[:ID] = "ind".*string.(phenoData_G5[:ID])
+
+    gInd      = genoData_Combined[:ID]
+    gpInd     = intersect(genoData_Combined[:ID],phenoData_G4[:ID])
+    gNoPInd   = setdiff(gInd,phenoData_G4[:ID])
+
+    #not IDs, rows!
+    refRows = [find(i -> i == j, phenoData_G4[:ID])[] for j in gpInd]
+    phenoRef = phenoData_G4[refRows,:];
+
+    #not IDs, rows!
+    refRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gpInd]
+    genoRef = genoData_Combined[refRows,:]; #first one is ID
+    
+       #not IDs, rows!
+    # first 200 is sires in G3 and G4 gNoPInd[401:end]
+    testRows = [find(i -> i == j, phenoData_G5[:ID])[] for j in gNoPInd[401:end]]
+    phenoTest = phenoData_G5[testRows,:];
+    #not IDs, rows!
+    # first 200 is sires gNoPInd[201:end]
+    testRows = [find(i -> i == j, genoData_Combined[:ID])[] for j in gNoPInd[401:end]]
+    genoTest = genoData_Combined[testRows,2:end];
+    
+    mtBayesPR(genoRef, phenoRef[[:pheno1, :pheno2]], myMap , nChr, rS, varG, varR, nChain, nBurnin, nThin, false)
+
+    singleBeta = readtable("beta1Out"*"$rS",header=false)
+    meanBeta1 = mean(convert(Array,singleBeta),1)'
+    singleBeta = readtable("beta2Out"*"$rS",header=false)
+    meanBeta2 = mean(convert(Array,singleBeta),1)'
+
+    snpEff   = [meanBeta1 meanBeta2]
+    ebvBayes = convert(Array{Int64},genoTest)*snpEff
+
+    println("r in Tst ", diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]]))))
+    r_Bayes =  diag(cor(ebvBayes,convert(Array,phenoTest[[:u1,:u2]])))
+
+    varUhat = cov(ebvBayes)
+
+    covRegion = vcat(mean(convert(Array,readtable("covBetaOut"*"$rS",header=false)),dims=1)...)
+    var1Region = vcat(mean(convert(Array,readtable("varBeta1Out"*"$rS",header=false)),dims=1)...)
+    var2Region = vcat(mean(convert(Array,readtable("varBeta2Out"*"$rS",header=false)),dims=1)...)
+
+    snpFile = readtable("snpInfo",header=false);
+    regions = [searchsorted(snpFile[:x3],i) for i in 1:maximum(snpFile[:x3])];
+
+    covSNP  = Array{Float64}(size(genoData[:,2:end],2))
+    var1SNP = Array{Float64}(size(genoData[:,2:end],2))
+    var2SNP = Array{Float64}(size(genoData[:,2:end],2))
+
+    for i in 1:length(regions)
+        covSNP[regions[i]]  .= covRegion[i] 
+        var1SNP[regions[i]] .= var1Region[i] 
+        var2SNP[regions[i]] .= var2Region[i] 
+    end
+
+    coVarSNP_BayesPR = [var1SNP covSNP covSNP var2SNP]
+
+    p    = mean(convert(Array,genoRef[:,2:end]),1)./2.0
+
+
+#    varG_BayesPR     = reshape(sum(coVarSNP_BayesPR.*(2*p.*(1-p))',1),2,2)
+    varR_BayesPR = reshape(mean(convert(Array,readtable("varEOut"*"$rS",header=false)),1),2,2)
+    gc()
+    
+    return r_Bayes, varUhat, varR_BayesPR, coVarSNP_BayesPR
+end
+
 

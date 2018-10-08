@@ -667,7 +667,7 @@ function runSTBayesPR(phenoDataInRef::DataFrame,phenoDataInVal::DataFrame,genoDa
         varSNP[regions[i]] .= varRegion[i] 
     end
 
-    varR = mean(convert(Array,readtable("varEOut"*"$rS",header=false)),1)
+    varR = mean(convert(Array,readtable("varEOut"*"$rS",header=false)),1)[]
     gc()
     
     return r_Bayes, varUhat, varR, varSNP

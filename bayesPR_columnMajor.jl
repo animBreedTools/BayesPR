@@ -331,7 +331,7 @@ function mmeRunFast(x,Ri,locus,xpx,ycorr1,ycorr2,invB)
     r4 = x'*Ri[4]
 
     rhs    = [r1 r2;r3 r4]*[ycorr1;ycorr2]
-    invLhs = inv([xpx[locus] xpx[locus];
+    invLhs = fastInv([xpx[locus] xpx[locus];
                   xpx[locus] xpx[locus]].*Ri + invB)
     
     meanBeta = invLhs*rhs    

@@ -117,7 +117,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
         #sample residual var
         Rmat = sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
 #        Ri = kron(inv(Rmat),eye(nRecords)) #for mmeRun2
-        Ri = inv(Rmat)
+        Ri = fastInv(Rmat)
 
         # sample intercept
         ycorr1 += μ[1]
@@ -140,7 +140,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
         for r in 1:nRegions
             theseLoci = SNPgroups[r]
             regionSize = length(theseLoci)
-            invB = inv(covBeta[r])
+            invB = fastInv(covBeta[r])
             for locus in theseLoci
                 BLAS.axpy!(tempBetaMat[1,locus], X[:,locus], ycorr1)
                 BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2) 
@@ -336,5 +336,18 @@ function mmeRunFast(x,Ri,locus,xpx,ycorr1,ycorr2,invB)
     
     meanBeta = invLhs*rhs    
     return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
+end
+
+function fastInv(a::Matrix)
+    c = copy(a)
+
+    detv = a[1] * a[4] - a[2] * a[3]
+    inv_d = 1 / detv
+
+    c[1] = a[4] * inv_d
+    c[2] = -a[2] * inv_d
+    c[3] = -a[3] * inv_d
+    c[4] = a[1] * inv_d
+    return c
 end
 

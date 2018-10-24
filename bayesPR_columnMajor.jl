@@ -331,8 +331,7 @@ function mmeRunFast(xp,Ri,locus,xpx,ycorr1,ycorr2,invB)
     r4 = xp*Ri[4]
 
     rhs    = [r1 r2;r3 r4]*[ycorr1;ycorr2]
-    invLhs = fastInv([xpx[locus] xpx[locus];
-                  xpx[locus] xpx[locus]].*Ri + invB)
+    invLhs = fastInv(xpx[locus].*Ri + invB)
     
     meanBeta = invLhs*rhs    
     return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))

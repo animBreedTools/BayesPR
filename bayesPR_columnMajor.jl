@@ -99,13 +99,6 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     μ = mean(Y,1)    
     X              .-= ones(Float64,nRecords)*2p
     xpx             = diag(X'X)
-    #allocate memory for mmeRun2
-#    x1x2    = zeros(Float64,length(vec(Y)),nTraits)
-#    x1x2pRi = zeros(Float64,nTraits,length(vec(Y)))
-#    x1x2T   = Array{Array{Float32,2}}(nMarkers)
-#    for locus in 1:nMarkers
-#        x1x2T[locus] = [X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]]
-#    end
 
     ycorr1 = (Y[:,1] .- μ[1])
     ycorr2 = (Y[:,2] .- μ[2])
@@ -322,12 +315,14 @@ end
 #    return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
 #end
 function mmeRunFast(xp,Ri,locus,xpx,ycorr1,ycorr2,invB)
-    r1 = xp*Ri[1]
-    r2 = xp*Ri[2]
-    r3 = xp*Ri[3]
-    r4 = xp*Ri[4]
+#    r1 = xp*Ri[1]
+#    r2 = xp*Ri[2]
+#    r3 = xp*Ri[3]
+#    r4 = xp*Ri[4]
+    
+#    rhs    = [r1 r2;r3 r4]*[ycorr1;ycorr2]
 
-    rhs    = [r1 r2;r3 r4]*[ycorr1;ycorr2]
+    rhs    = [xp*ycorr1*Ri[1]+xp*ycorr2*Ri[2];xp*ycorr1*Ri[3]+xp*ycorr2*Ri[4]]
     invLhs = fastInv(xpx[locus].*Ri + invB)
     
     meanBeta = invLhs*rhs    

@@ -132,11 +132,11 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
             regionSize = length(theseLoci)
             invB = fastInv(covBeta[r])
             for locus in theseLoci
-                BLAS.axpy!(tempBetaMat[1,locus], X[:,locus], ycorr1)
-                BLAS.axpy!(tempBetaMat[2,locus], X[:,locus], ycorr2) 
-                tempBetaMat[:,locus] = mmeRunFast(X[:,locus]',Ri,locus,xpx,ycorr1,ycorr2,invB)
-                BLAS.axpy!(-1*tempBetaMat[1,locus], X[:,locus], ycorr1)
-                BLAS.axpy!(-1*tempBetaMat[2,locus], X[:,locus], ycorr2)
+                BLAS.axpy!(tempBetaMat[1,locus], view(X,:,locus), ycorr1)
+                BLAS.axpy!(tempBetaMat[2,locus], view(X,:,locus), ycorr2) 
+                tempBetaMat[:,locus] = mmeRunFast(view(X,:,locus)',Ri,locus,xpx,ycorr1,ycorr2,invB)
+                BLAS.axpy!(-1*tempBetaMat[1,locus], view(X,:,locus), ycorr1)
+                BLAS.axpy!(-1*tempBetaMat[2,locus], view(X,:,locus), ycorr2)
             end
             covBeta[r] = sampleCovBeta(dfβ,regionSize,Vb,tempBetaMat, theseLoci)
         end

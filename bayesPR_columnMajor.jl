@@ -107,9 +107,6 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
 #        x1x2T[locus] = [X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]]
 #    end
 
-    ycorr1 = zeros(Float64,nTraits,length(Y[:,1]))
-    ycorr2 = zeros(Float64,nTraits,length(Y[:,2]))
-    
     ycorr1 = (Y[:,1] .- μ[1])
     ycorr2 = (Y[:,2] .- μ[2])
         

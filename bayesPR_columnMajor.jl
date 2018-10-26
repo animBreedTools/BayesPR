@@ -50,12 +50,12 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
             regionSize = length(theseLoci)
             λ_r = varE/varBeta[r]
             for l in theseLoci
-                BLAS.axpy!(tempBetaVec[l], X[:,l], ycorr)
-                rhs = X[:,l]'*ycorr
+                BLAS.axpy!(tempBetaVec[l], view(X,:,l), ycorr)
+                rhs = view(X,:,l)'*ycorr
                 lhs = xpx[l] + λ_r
                 meanBeta = lhs\rhs                                     #I can use invLhs = 1.0/lhs as lhs is a scalar
                 tempBetaVec[l] = sampleBeta(meanBeta, lhs, varE)       #then I can use invLhs*varE
-                BLAS.axpy!(-1*tempBetaVec[l], X[:,l], ycorr)
+                BLAS.axpy!(-1*tempBetaVec[l], view(X,:,l), ycorr)
             end
             varBeta[r] = sampleVarBeta(νS_β,tempBetaVec[theseLoci],df_β,regionSize)
         end

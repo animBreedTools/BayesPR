@@ -53,8 +53,8 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
                 BLAS.axpy!(tempBetaVec[l], view(X,:,l), ycorr)
                 rhs = view(X,:,l)'*ycorr
                 lhs = xpx[l] + λ_r
-                meanBeta = lhs\rhs                                     #I can use invLhs = 1.0/lhs as lhs is a scalar
-                tempBetaVec[l] = sampleBeta(meanBeta, lhs, varE)       #then I can use invLhs*varE
+                meanBeta = lhs\rhs
+                tempBetaVec[l] = sampleBeta(meanBeta, lhs, varE)
                 BLAS.axpy!(-1*tempBetaVec[l], view(X,:,l), ycorr)
             end
             varBeta[r] = sampleVarBeta(νS_β,tempBetaVec[theseLoci],df_β,regionSize)
@@ -183,16 +183,13 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
             accRegion += TotRegions
             push!(accRegionVec, accRegion)
             tempGroups = sort(repmat(collect(accRegionVec[c]+1:accRegionVec[c+1]),fixedRegSize))
-#           tempGroups = sort(repmat(collect(1:TotRegions),fixedRegSize))
             snpInfo = DataFrame(Any, length(tempGroups), 3)
             snpInfo[1:totLociChr,1] = collect(1:totLociChr)
             snpInfo[1:totLociChr,2] = thisChr[:snpID]
             snpInfo[:,3] = tempGroups
             dropmissing!(snpInfo)
             snpInfoFinal = vcat(snpInfoFinal,snpInfo)
-#           rename!(snpInfo, names(snpInfo), [:snpOrder, :snpID, :regionID])
             @printf("chr %.0f has %.0f groups \n", c, TotRegions)
-#           println(counts(snpInfo[:,3]))
             println(by(snpInfo, :x3, nrow)[:,2])
         end
         end  #ends if control flow
@@ -298,22 +295,7 @@ function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
      Sr = [ycorr1 ycorr2]'* [ycorr1 ycorr2]
     return rand(InverseWishart(dfR + nRecords,VR + Sr))
 end
-function mmeRun1(X,locus,nRecords,ycorr1,ycorr2,Ri,invB)
-    x1x2   = ([X[:,locus] zeros(nRecords);zeros(nRecords) X[:,locus]])
-    x1x2pRi= x1x2'*Ri
-    rhs    = x1x2pRi*[ycorr1;ycorr2]
-    invLhs = inv(x1x2pRi*x1x2 + invB)
-    meanBeta = invLhs*rhs    
-    return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
-end
-#function mmeRun2(locus,x1x2,x1x2T,x1x2pRi,nRecords,ycorr1,ycorr2,Ri,invB) #memory optimized way
-#    x1x2 .= x1x2T[locus]
-#    x1x2pRi  .= x1x2'*Ri
-#    rhs    = x1x2pRi*[ycorr1;ycorr2]
-#    invLhs = inv(x1x2pRi*x1x2 + invB)
-#    meanBeta = invLhs*rhs    
-#    return rand(MvNormal(meanBeta,convert(Array,Symmetric(invLhs))))
-#end
+
 function mmeRunFast(xp,Ri,locus,xpx,ycorr1,ycorr2,invB)
 #    r1 = xp*Ri[1]
 #    r2 = xp*Ri[2]

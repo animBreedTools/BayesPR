@@ -92,7 +92,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
      #priors#
     dfβ         = dfEffect + nTraits
     dfR         = dfRes + nTraits
-    Vb          = covBeta[1].*(dfEffect-nTraits-1)
+    Vb          = covBeta[1].*(dfβ-nTraits-1)
     VR          = varResidual.*(dfR - nTraits - 1)
     #initial Beta values as "0"
     tempBetaMat     = zeros(Float64,nTraits,nMarkers)

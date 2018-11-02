@@ -124,6 +124,11 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
         μ[1] = rand(Normal(mean1,sqrt(invLhs1*Rmat[1,1])))
         μ[2] = rand(Normal(mean2,sqrt(invLhs2*Rmat[2,2])))
         
+#        invFixedLhs = fastInv(nRecords.*Ri .+ [0.000000001 0;0 0.000000001]) #precision (prior of invK)
+#        fixedRhs = Ri*[sum(ycorr1); sum(ycorr2)]
+#        μ2 = rand(MvNormal(invFixedLhs*fixedRhs,convert(Array,Symmetric(invFixedLhs))))        
+#        println("mu: $([mean1 mean2])...mu2: $(invFixedLhs*fixedRhs)")
+        
         ycorr1 -= μ[1]
         ycorr2 -= μ[2]
         

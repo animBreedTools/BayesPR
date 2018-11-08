@@ -8,14 +8,14 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     println("number of regions: ", nRegions)
     dfEffectVar = 4.0
     dfRes       = 4.0
-    X           = convert(Array{Float64}, genoX[:,2:end])
+    X           = convert(Array{Float64}, genoX[2:end])
     println("X is this size", size(X))
     y           = convert(Array{Float64}, phenoTrain)
     println("y is this size", size(y))
     nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
     fileControlSt(fixedRegSize)
     p           = mean(X,dims=1)./2.0
-    sum2pq      = sum(2*(1-p).*p)
+    sum2pq      = sum(2*(1.-p).*p)
     if varGenotypic==0.0
         varBeta      = fill(0.0005, nRegions)
         else varBeta = fill(varGenotypic/sum2pq, nRegions)
@@ -167,10 +167,10 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
     # I find cols that are in mapData (<chrs), and select those
     usedLoci = intersect(names(genoTrain),Symbol.(mapData[:snpID]))
     mapData = mapData[[find(usedLoci[i].==Symbol.(mapData[:snpID]))[] for i in 1:length(usedLoci)],:] #trim map data
-    genoX = genoTrain[:,vcat(Symbol("ID"),usedLoci)]    #trim genoData
+    genoX = genoTrain[vcat(Symbol("ID"),usedLoci)]    #trim genoData
 #     genoX = genoTrain[:,[1; [find(i -> i == j, names(genoTrain))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]]
     #genoX = genoTrain[:,[find(i -> i == j, names(genoTrain))[] for j in [Symbol(mapData[:snpID][i]) for i in 1:size(mapData,1)]]]
-    totLoci = size(genoX[:,2:end],2) # first col is ID
+    totLoci = size(genoX[2:end],2) # first col is ID
     snpInfoFinal = DataFrame(Any, 0, 3)
     if fixedRegSize==99
         println("fixedRedSize $fixedRegSize")
@@ -187,7 +187,7 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
             TotRegions = ceil(Int,totLociChr/fixedRegSize)
             accRegion += TotRegions
             push!(accRegionVec, accRegion)
-            tempGroups = sort(repmat(collect(accRegionVec[c]+1:accRegionVec[c+1]),fixedRegSize))
+            tempGroups = sort(repeat(collect(accRegionVec[c]+1:accRegionVec[c+1]),fixedRegSize))
             snpInfo = DataFrame(Any, length(tempGroups), 3)
             snpInfo[1:totLociChr,1] = collect(1:totLociChr)
             snpInfo[1:totLociChr,2] = thisChr[:snpID]

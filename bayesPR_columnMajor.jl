@@ -14,7 +14,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     println("y is this size", size(y))
     nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
     fileControlSt(fixedRegSize)
-    p           = mean(X,1)./2.0
+    p           = mean(X,dims=1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     if varGenotypic==0.0
         varBeta      = fill(0.0005, nRegions)
@@ -80,7 +80,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     println("Y is this size", size(Y))
     nTraits, nRecords , nMarkers   = size(Y,2), size(Y,1), size(X,2)
     fileControl(nTraits,fixedRegSize)
-    p           = mean(X,1)./2.0
+    p           = mean(X,dims=1)./2.0
     sum2pq      = sum(2*(1-p).*p)
     if varGenotypic==0.0
         covBeta       = fill([0.003 0;0 0.003],nRegions)
@@ -96,7 +96,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     VR          = varResidual.*(dfR - nTraits - 1)
     #initial Beta values as "0"
     tempBetaMat     = zeros(Float64,nTraits,nMarkers)
-    μ = mean(Y,1)    
+    μ = mean(Y,dims=1)    
     X              .-= ones(Float64,nRecords)*2p
     xpx             = diag(X'X)
 

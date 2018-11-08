@@ -15,7 +15,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
     nTraits, nRecords , nMarkers   = size(y,2), size(y,1), size(X,2)
     fileControlSt(fixedRegSize)
     p           = mean(X,dims=1)./2.0
-    sum2pq      = sum(2*(1.-p).*p)
+    sum2pq      = sum(2*(1 .- p).*p)
     if varGenotypic==0.0
         varBeta      = fill(0.0005, nRegions)
         else varBeta = fill(varGenotypic/sum2pq, nRegions)
@@ -81,7 +81,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     nTraits, nRecords , nMarkers   = size(Y,2), size(Y,1), size(X,2)
     fileControl(nTraits,fixedRegSize)
     p           = mean(X,dims=1)./2.0
-    sum2pq      = sum(2*(1-p).*p)
+    sum2pq      = sum(2*(1 .- p).*p)
     if varGenotypic==0.0
         covBeta       = fill([0.003 0;0 0.003],nRegions)
         else covBeta  = fill(varGenotypic/sum2pq,nRegions)

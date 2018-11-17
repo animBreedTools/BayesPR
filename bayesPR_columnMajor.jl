@@ -198,7 +198,7 @@ function prepRegionData(snpInfo,chrs,genoTrain,fixedRegSize)
             println(by(snpInfo, :x3, nrow)[:,2])
         end
         end  #ends if control flow
-    print(snpInfoFinal)
+#    print(snpInfoFinal)
     writecsv("snpInfo",convert(Array,snpInfoFinal))
     for g in 1:accRegion
         push!(SNPgroups,searchsorted(snpInfoFinal[:,3], g))

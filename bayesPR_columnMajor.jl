@@ -277,7 +277,7 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
 end
 
 function fileControl(nTraits,fixedRegSize)
-    files2Remove = ["muOut$fixedRegSize" "varEOut$fixedRegSize" "covBetaOut$fixedRegSize" "coVarUhatOut$fixedRegSize"]
+    files2Remove = ["muOut$fixedRegSize", "varEOut$fixedRegSize", "covBetaOut$fixedRegSize", "coVarUhatOut$fixedRegSize"]
     for t in 1:nTraits
         push!(files2Remove,"beta"*"$t"*"Out$fixedRegSize")
         push!(files2Remove,"varBeta"*"$t"*"Out$fixedRegSize")

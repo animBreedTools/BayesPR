@@ -219,10 +219,14 @@ function outputControlSt(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,
         close(out2)
         out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
         writecsv(out3, varE)
-        close(out3)    
+        close(out3)
+        varUhat = var(X*tempBetaVec)
+        out4 = open(pwd()*"/varUhatOut$fixedRegSize", "a")
+        writecsv(out4, varUhat)
+        close(out4)
         if onScreen==true
-            varU = var(X*tempBetaVec)
-            @printf("iter %s varU %.2f varE %.2f\n", iter, varU, varE)
+#            varU = var(X*tempBetaVec)
+            @printf("iter %s varUhat %.2f varE %.2f\n", iter, varUhat, varE)
         elseif onScreen==false
              @printf("iter %s\n", iter)
         end
@@ -230,7 +234,7 @@ function outputControlSt(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,
 end
 
 function fileControlSt(fixedRegSize)
-    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize"]
+    for f in ["muOut$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOut$fixedRegSize" "varUhatOut$fixedRegSize"]
         if isfile(f)==true
             rm(f)
             println("$f removed")
@@ -258,10 +262,14 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
         close(outCov)
         out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
         writecsv(out3, vec(Rmat)')
-        close(out3)    
+        close(out3)
+        coVarUhat = cov(X*tempBetaMat')
+        out4 = open(pwd()*"/coVarUhatOut$fixedRegSize", "a")
+        writecsv(out4, coVarUhat')
+        close(out4)    
         if onScreen==true
-            varU = cov(X*tempBetaMat')
-            println("iter $iter \nvarU: $varU \nvarE: $Rmat \n")
+#            varU = cov(X*tempBetaMat')
+            println("iter $iter \ncoVarUhat: $coVarUhat \nvarE: $Rmat \n")
         elseif onScreen==false
              @printf("iter %s\n", iter)
         end

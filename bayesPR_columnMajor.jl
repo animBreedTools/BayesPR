@@ -50,7 +50,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
             theseLoci = SNPgroups[r]
             regionSize = length(theseLoci)
             λ_r = varE/varBeta[r]
-            for l in theseLoci
+            for l in theseLoci::UnitRange{Int64}
                 BLAS.axpy!(tempBetaVec[l], view(X,:,l), ycorr)
                 rhs = view(X,:,l)'*ycorr
                 lhs = xpx[l] + λ_r
@@ -137,7 +137,7 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
             theseLoci = SNPgroups[r]
             regionSize = length(theseLoci)
             invB = fastInv(covBeta[r])
-            for locus in theseLoci
+            for locus in theseLoci::UnitRange{Int64}
                 BLAS.axpy!(tempBetaMat[1,locus], view(X,:,locus), ycorr1)
                 BLAS.axpy!(tempBetaMat[2,locus], view(X,:,locus), ycorr2) 
                 tempBetaMat[:,locus] = mmeRunFast(view(X,:,locus)',Ri,locus,xpx,ycorr1,ycorr2,invB)

@@ -307,8 +307,14 @@ function sampleCovBeta(dfβ, regionSize, Vb , tempBetaMat, theseLoci)
 end
 function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
      Sr = [ycorr1 ycorr2]'* [ycorr1 ycorr2]
-    return rand(InverseWishart(dfR + nRecords,VR + Sr))
+    simR = rand(InverseWishart(dfR + nRecords,VR + Sr))
+    simR[1,2]=simR[2,1]=0.0
+    return simR
 end
+#function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
+#     Sr = [ycorr1 ycorr2]'* [ycorr1 ycorr2]
+#    return rand(InverseWishart(dfR + nRecords,VR + Sr))
+#end
 
 function mmeRunFast(xp,Ri,locus,xpx,ycorr1,ycorr2,invB)
 #    r1 = xp*Ri[1]

@@ -307,8 +307,8 @@ function sampleCovBeta(dfβ, regionSize, Vb , tempBetaMat, theseLoci)
 end
 function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
      Sr = [ycorr1 ycorr2]'* [ycorr1 ycorr2]
+    Sr[1,2]=Sr[2,1]=Vr[1,2]=Vr[2,1]=0.0
     simR = rand(InverseWishart(dfR + nRecords,VR + Sr))
-    simR[1,2]=simR[2,1]=0.0
     return simR
 end
 #function sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)

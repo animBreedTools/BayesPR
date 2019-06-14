@@ -50,7 +50,7 @@ function bayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenotypi
             theseLoci = SNPgroups[r]
             regionSize = length(theseLoci)
             λ_r = varE/varBeta[r]
-            for l in theseLoci::UnitRange{Int64}
+            for l in theseLoci                                     #::UnitRange{Int64}
                 BLAS.axpy!(tempBetaVec[l], view(X,:,l), ycorr)
                 rhs = view(X,:,l)'*ycorr
                 lhs = xpx[l] + λ_r

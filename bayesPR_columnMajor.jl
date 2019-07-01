@@ -107,23 +107,27 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     for iter in 1:chainLength
         #sample residual var
         Rmat = sampleCovarE(dfR, nRecords, VR, ycorr1, ycorr2)
-#        Ri = kron(inv(Rmat),eye(nRecords)) #for mmeRun2
         Ri = fastInv(Rmat)
 
         # sample intercept
         ycorr1 += μ[1]
-        rhs1 = sum(ycorr1)
-        invLhs1 = 1.0/nRecords
-        mean1 = rhs1*invLhs1
+#        rhs1 = sum(ycorr1)
+#        invLhs1 = 1.0/nRecords
+#        mean1 = rhs1*invLhs1
 
         #    sample intercept
         ycorr2 += μ[2]
-        rhs2 = sum(ycorr2)
-        invLhs2 = 1.0/nRecords
-        mean2 = rhs2*invLhs2
+#        rhs2 = sum(ycorr2)
+#        invLhs2 = 1.0/nRecords
+#        mean2 = rhs2*invLhs2
     
-        μ[1] = rand(Normal(mean1,sqrt(invLhs1*Rmat[1,1])))
-        μ[2] = rand(Normal(mean2,sqrt(invLhs2*Rmat[2,2])))
+#        μ[1] = rand(Normal(mean1,sqrt(invLhs1*Rmat[1,1])))
+#        μ[2] = rand(Normal(mean2,sqrt(invLhs2*Rmat[2,2])))
+        
+        invFixedLhs = Rmat./nRecords #precision (prior of invK)
+        fixedRhs = Ri*[sum(ycorr1); sum(ycorr2)]
+        μ = rand(MvNormal(invFixedLhs*fixedRhs,convert(Array,Symmetric(invFixedLhs))))'
+
         
 #        invFixedLhs = fastInv(nRecords.*Ri .+ [0.000000001 0;0 0.000000001]) #precision (prior of invK)
 #        fixedRhs = Ri*[sum(ycorr1); sum(ycorr2)]

@@ -216,17 +216,17 @@ function outputControlSt(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,
         out0 = open(pwd()*"/muOutST$fixedRegSize", "a")
         writecsv(out0, μ)
         close(out0) 
-        out1 = open(pwd()*"/betaOut$fixedRegSize", "a")
+        out1 = open(pwd()*"/betaOutST$fixedRegSize", "a")
         writecsv(out1, tempBetaVec')
         close(out1)
-        out2 = open(pwd()*"/varBetaOut$fixedRegSize", "a")
+        out2 = open(pwd()*"/varBetaOutST$fixedRegSize", "a")
         writecsv(out2, varBeta')
         close(out2)
         out3 = open(pwd()*"/varEOutST$fixedRegSize", "a")
         writecsv(out3, varE)
         close(out3)
         varUhat = var(X*tempBetaVec)
-        out4 = open(pwd()*"/varUhatOut$fixedRegSize", "a")
+        out4 = open(pwd()*"/varUhatOutST$fixedRegSize", "a")
         writecsv(out4, varUhat)
         close(out4)
         if onScreen==true
@@ -239,7 +239,7 @@ function outputControlSt(onScreen,iter,these2Keep,X,tempBetaVec,μ,varBeta,varE,
 end
 
 function fileControlSt(fixedRegSize)
-    for f in ["muOutST$fixedRegSize" "betaOut$fixedRegSize" "varBetaOut$fixedRegSize" "varEOutST$fixedRegSize" "varUhatOut$fixedRegSize"]
+    for f in ["muOutST$fixedRegSize" "betaOutST$fixedRegSize" "varBetaOutST$fixedRegSize" "varEOutST$fixedRegSize" "varUhatOutST$fixedRegSize"]
         if isfile(f)==true
             rm(f)
             println("$f removed")

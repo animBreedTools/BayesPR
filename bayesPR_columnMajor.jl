@@ -249,27 +249,27 @@ end
 
 function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta,Rmat,fixedRegSize,nRegions)
     if iter in these2Keep
-        out0 = open(pwd()*"/muOut$fixedRegSize", "a")
+        out0 = open(pwd()*"/muOutMTPR$fixedRegSize", "a")
         writecsv(out0, μ)
         close(out0)
         for t in 1:nTraits
-            out1 = open(pwd()*"/beta"*"$t"*"Out$fixedRegSize", "a")
+            out1 = open(pwd()*"/beta"*"$t"*"OutMTPR$fixedRegSize", "a")
             writecsv(out1, tempBetaMat[t,:]')
             close(out1)
-            out2 = open(pwd()*"/varBeta"*"$t"*"Out$fixedRegSize", "a")
+            out2 = open(pwd()*"/varBeta"*"$t"*"OutMTPR$fixedRegSize", "a")
             printThis = [vcat(covBeta[r]...)[t^2] for r in 1:nRegions]'
             writecsv(out2, printThis) #works only for bivariate
             close(out2)
         end
-        outCov = open(pwd()*"/covBetaOut$fixedRegSize", "a")
+        outCov = open(pwd()*"/covBetaOutMTPR$fixedRegSize", "a")
         printThis = [vcat(covBeta[r]...)[3] for r in 1:nRegions]'
         writecsv(outCov, printThis) #works only for bivariate
         close(outCov)
-        out3 = open(pwd()*"/varEOut$fixedRegSize", "a")
+        out3 = open(pwd()*"/varEOutMTPR$fixedRegSize", "a")
         writecsv(out3, vec(Rmat)')
         close(out3)
         coVarUhat = cov(X*tempBetaMat')
-        out4 = open(pwd()*"/coVarUhatOut$fixedRegSize", "a")
+        out4 = open(pwd()*"/coVarUhatOutMTPR$fixedRegSize", "a")
         writecsv(out4, vec(coVarUhat)')
         close(out4)    
         if onScreen==true
@@ -282,10 +282,10 @@ function outputControl(nTraits,onScreen,iter,these2Keep,X,tempBetaMat,μ,covBeta
 end
 
 function fileControl(nTraits,fixedRegSize)
-    files2Remove = ["muOut$fixedRegSize", "varEOut$fixedRegSize", "covBetaOut$fixedRegSize", "coVarUhatOut$fixedRegSize"]
+    files2Remove = ["muOutMTPR$fixedRegSize", "varEOutMTPR$fixedRegSize", "covBetaOutMTPR$fixedRegSize", "coVarUhatOutMTPR$fixedRegSize"]
     for t in 1:nTraits
-        push!(files2Remove,"beta"*"$t"*"Out$fixedRegSize")
-        push!(files2Remove,"varBeta"*"$t"*"Out$fixedRegSize")
+        push!(files2Remove,"beta"*"$t"*"OutMTPR$fixedRegSize")
+        push!(files2Remove,"varBeta"*"$t"*"OutMTPR$fixedRegSize")
     end
     for f in files2Remove
         if isfile(f)==true

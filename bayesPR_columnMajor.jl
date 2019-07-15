@@ -73,8 +73,8 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     these2Keep = collect((burnIn+outputFreq):outputFreq:chainLength) #print these iterations
     nRegions    = length(SNPgroups)
     println("number of regions: ", nRegions)
-    dfEffect    = 4.0
-    dfRes       = 4.0
+    dfEffect    = 2.0
+    dfRes       = 2.0
     X           = convert(Array{Float64}, genoX[:,2:end])  #first colum is ID
     println("X is this size", size(X))
     Y           = convert(Array{Float64}, phenoTrain)

@@ -83,6 +83,10 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
     fileControl(nTraits,fixedRegSize)
     p           = mean(X,dims=1)./2.0
     sum2pq      = sum(2*(1 .- p).*p)
+    
+    varGenotypic = varGenotypic.*2       ####
+    varResidual  = varResidual.*2        ####
+    
     if varGenotypic==0.0
         covBeta       = fill([0.003 0;0 0.003],nRegions)
         else covBeta  = fill(varGenotypic/sum2pq,nRegions)
@@ -91,10 +95,10 @@ function mtBayesPR(genoTrain, phenoTrain, snpInfo, chrs, fixedRegSize, varGenoty
         varResidual   = [0.003 0;0 0.003]
     end
      #priors#
-    dfβ         = dfEffect #+ nTraits
-    dfR         = dfRes #+ nTraits
-    Vb          = covBeta[1].*(dfβ-nTraits-1)      #####
-    VR          = varResidual.*(dfR-nTraits-1) #####
+    dfβ         = dfEffect+ 1                    #+ nTraits
+    dfR         = dfRes+ 1                       #+ nTraits
+    Vb          = covBeta[1].*(dfβ-nTraits-1)
+    VR          = varResidual.*(dfR-nTraits-1)
     #initial Beta values as "0"
     tempBetaMat     = zeros(Float64,nTraits,nMarkers)
     μ = mean(Y,dims=1)    
